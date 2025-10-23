@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<!-- 🔹 Mostrar formulario si NO está logueado -->
+<div th:if="${session.adminLogueado == null}"
+     class="d-flex align-items-center justify-content-center vh-100 bg-light">
+    <div class="card p-4 shadow rounded" style="max-width: 400px; width: 100%;">
+        <!-- Título -->
+        <h4 class="text-center mb-4 fw-bold text-primary">Acceso de Administrador</h4>
+
+        <!-- Formulario -->
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="********" required>
+            </div>
+
+            <!-- Mensaje de error -->
+            <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/perfil" class="btn btn-outline-secondary rounded-pill">Regresar</a>
+                <button type="submit" class="btn btn-primary rounded-pill">Iniciar Sesión</button>
+            </div>
+        </form>
+
+        <!-- Footer opcional -->
+        <p class="text-center text-muted mt-3" style="font-size: 0.9rem;">
+            Foto & Video Profesional © 2025
+        </p>
+    </div>
+</div>
+
+<!-- 🔹 Mostrar dashboard si YA está logueado -->
+<div th:if="${session.adminLogueado}" class="container my-5">
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand">
+                <i class="fas fa-user-shield"></i> Panel de Administrador
+            </span>
+            <div>
+                <span class="text-white me-3">
+                    <i class="fas fa-user-circle"></i>
+                    <span th:text="${adminEmail}">admin</span>
+                </span>
+                <a href="/logout" class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <h2 class="mb-4">Bienvenido al Panel de Control</h2>
+
+    <div class="card dashboard-card h-100">
+        <div class="card-body text-center">
+            <i class="fas fa-file-contract card-icon text-primary"></i>
+            <h5 class="card-title">Contratos</h5>
+            <p class="card-text text-muted">Gestiona todos los contratos registrados en el sistema</p>
+            <a href="/verContratos" class="btn btn-primary">
+                <i class="fas fa-eye me-2"></i>Ver Contratos
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+            <div class="card shadow text-center p-4">
+                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                <h5>Usuarios</h5>
+                <p>Administra usuarios registrados</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow text-center p-4">
+                <i class="fas fa-cog fa-3x text-secondary mb-3"></i>
+                <h5>Configuración</h5>
+                <p>Ajustes generales del sistema</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

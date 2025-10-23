@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<title>Pagina de ejemplo de enlace con parametros</title>
+</head>
+<body>
+<h2>Listado de usuarios</h2>
+<table border="1">
+<thead>
+	<tr>
+	<td><b>ID</b></td>
+	<td><b>Nombre</b></td>
+	<td><b>Email</b></td>
+	<td><b>Actualizar</b></td>
+	<td><b>Editar</b></td>
+	</tr>
+</thead>
+<tbody>
+	<tr th:each="usuario:${listaUsuarios}">
+	<td th:text="${usuario.id}">
+    </td>
+	<td colspan="3"> 
+	<form th:action="@{/actualizar}" method="post">
+    <input type="hidden" name="id" th:value="${usuario.id}" />
+    <input type="text" name="nombre" th:value="${usuario.nombre}" />
+    <input type="email" name="email" th:value="${usuario.email}" />
+    <button type="submit">Actualizar</button>
+	</form>
+	</td>
+	<td>
+	<a th:href="@{'/editar/' + ${usuario.id}}">
+        <button>Editar</button>
+    </a>
+	</td>
+	</tr>
+</tbody>
+</table>
+</body>
+</html>

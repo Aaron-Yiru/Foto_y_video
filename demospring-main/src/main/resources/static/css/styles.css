@@ -1,0 +1,467 @@
+/* ======================
+   Estilos Generales
+====================== */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.navbar {
+    background-color: #212529 !important;
+    padding: 1rem 2rem;
+}
+
+.navbar-brand, .nav-link {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.nav-link:hover {
+    color: #adb5bd !important;
+}
+
+/* ======================
+   Video - Hero Section
+====================== */
+.hero-video {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+    overflow: hidden;
+}
+
+.hero-video video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+}
+
+.hero-video .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+}
+
+.hero-video h1 {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.hero-video p {
+    font-size: 1.2rem;
+    margin: 1rem 0;
+}
+
+/* ======================
+   Servicios (tarjetas)
+====================== */
+.card-service {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-service:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Botones */
+.btn-primary {
+    background-color: #e66465;
+    border-color: #e66465;
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #da4b4b;
+    border-color: #da4b4b;
+}
+
+/* ======================
+   Galería (Estilo 1 - usado en index o servicios)
+====================== */
+.gallery-card {
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.gallery-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    border-radius: 15px;
+}
+
+.gallery-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.gallery-card:hover img {
+    transform: scale(1.1);
+}
+
+/* Lightbox (modal estilo Bootstrap) */
+#lightboxModal .modal-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#lightboxModal img {
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+/* Footer */
+.footer {
+    background-color: #212529;
+    color: #adb5bd;
+}
+
+.social-icons a {
+    color: #adb5bd;
+    font-size: 1.5rem;
+    margin: 0 10px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #ffffff;
+}
+
+/* Galería (Estilo 2 - usado en galeria.html)*/
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    border-radius: 12px;
+}
+
+.gallery-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+/* Lightbox personalizado (galeria.html) */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: rgba(0,0,0,0.9);
+}
+
+.lightbox-content {
+    margin: auto;
+    display: block;
+    max-width: 85%;
+    max-height: 80vh;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.close {
+    position: absolute;
+    top: 25px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.close:hover {
+    color: #ff4444;
+}
+/* perfil*/
+/* ===== ESTILOS PARA PERFIL.HTML - TEMA OSCURO ===== */
+
+/* Login Card - Contenedor Principal */
+.login-card {
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Tabs de Navegación */
+.login-card .nav-tabs {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+.login-card .nav-tabs .nav-link {
+    color: #b0b3b8;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.login-card .nav-tabs .nav-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.login-card .nav-tabs .nav-link.active {
+    color: #ffffff;
+    background: rgba(13, 110, 253, 0.1);
+    border-bottom: 3px solid #0d6efd;
+}
+
+/* Títulos */
+.login-card h4 {
+    color: #ffffff;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* Labels de Formulario */
+.login-card .form-label {
+    color: #e4e6eb;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Inputs */
+.login-card .form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 12px 15px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.login-card .form-control:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #0d6efd;
+    color: #ffffff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.login-card .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Botones */
+.login-card .btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    border: none;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+}
+
+.login-card .btn-primary:hover {
+    background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.6);
+}
+
+.login-card .btn-outline-dark {
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.login-card .btn-outline-dark:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffffff;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Separador */
+.login-card hr {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 30px 0;
+}
+
+/* Texto Muted */
+.login-card .text-muted {
+    color: #b0b3b8 !important;
+}
+
+/* Alertas */
+.login-card .alert-success {
+    background: rgba(25, 135, 84, 0.2);
+    border: 1px solid rgba(25, 135, 84, 0.5);
+    color: #75fb8e;
+    border-radius: 10px;
+}
+
+.login-card .alert-danger {
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #ff6b81;
+    border-radius: 10px;
+}
+
+.login-card .alert i {
+    margin-right: 8px;
+}
+
+.login-card .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+.login-card .btn-close:hover {
+    opacity: 1;
+}
+
+/* Tab Content */
+.login-card .tab-content {
+    padding-top: 10px;
+}
+
+/* Animación para cambio de tabs */
+.login-card .tab-pane {
+    animation: fadeIn 0.4s ease-in-out;
+}
+SESIÓN / CARRITO (NUEVAS MEJORAS)
+   ================================== */
+.card-header.bg-primary {
+    background-color: #e66465 !important;
+    border-color: #e66465;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.card-header.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.card-header.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+/* Total a Pagar */
+.text-primary {
+    color: #e66465 !important; /* Usar el color de acento en totales */
+}
+
+/* Botón de Pago */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Botones de Reporte */
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+/* Mejora estética para el carrito vacío */
+.fa-inbox {
+    color: #ced4da !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 25px;
+    }
+
+    .login-card .nav-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 25px;
+    }
+
+    .login-card .nav-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}

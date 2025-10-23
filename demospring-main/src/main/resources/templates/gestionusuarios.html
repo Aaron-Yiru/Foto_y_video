@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="/css/css-ges-u/stylesgu.css">
+</head>
+<body>
+<h1>Gestión de Usuarios</h1>
+
+<!-- Estadísticas -->
+<p><strong>Total de usuarios:</strong> <span th:text="${totalUsuarios}"></span></p>
+<p><strong>Activos:</strong> <span th:text="${usuariosActivos}"></span></p>
+<p><strong>Inactivos:</strong> <span th:text="${usuariosInactivos}"></span></p>
+
+<!-- Tabla de usuarios -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Activo</th>
+        <th>Fecha Registro</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="usuario : ${usuarios}">
+        <td th:text="${usuario.id}"></td>
+        <td th:text="${usuario.nombre}"></td>
+        <td th:text="${usuario.email}"></td>
+        <td th:text="${usuario.activo}"></td>
+        <td th:text="${usuario.fechaRegistro}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

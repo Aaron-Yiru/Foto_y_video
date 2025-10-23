@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi Sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="ms-4">
+                            <h3 class="mb-1">¡Hola, <span th:text="${nombreUsuario}">Usuario</span>!</h3>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-envelope"></i> <span th:text="${emailUsuario}">correo@ejemplo.com</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sección de Contratos Procesados (si existen) -->
+        <div class="col-lg-12" th:if="${!#lists.isEmpty(session.contratos)}">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-file-contract"></i> Contratos Procesados - Listos para Enviar</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Tus contratos han sido procesados. Revisa los detalles y envíalos al administrador para su aprobación final.
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Servicio</th>
+                                <th>Fecha Evento</th>
+                                <th>Lugar</th>
+                                <th>Teléfono</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="contrato : ${session.contratos}">
+                                <td><strong th:text="${contrato.servicio}"></strong></td>
+                                <td th:text="${contrato.fecha}"></td>
+                                <td th:text="${contrato.lugar}"></td>
+                                <td th:text="${contrato.telefono}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <form th:action="@{/contratos/enviar-revision}" method="post" class="text-end mt-3">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-paper-plane"></i> Enviar Contratos a Revisión del Administrador
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Mi Carrito de Servicios</h4>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(servicios)}" class="text-center py-5">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No tienes servicios añadidos al carrito</h5>
+                        <a href="/servicios" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus"></i> Añadir Servicios
+                        </a>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(servicios)}">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Servicio</th>
+                                    <th>Descripción</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-center">Acción</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="servicio, iterStat : ${servicios}">
+                                    <td>
+                                        <strong th:text="${servicio.nombre}">Fotografía de Bodas</strong>
+                                    </td>
+                                    <td class="text-muted" th:text="${servicio.descripcion}">Cobertura completa</td>
+                                    <td class="text-end">
+                                        <strong class="text-primary">S/ <span th:text="${#numbers.formatDecimal(servicio.precio, 0, 'COMMA', 2, 'POINT')}">500.00</span></strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <form th:action="@{/sesion/eliminar-servicio}" method="post" style="display:inline;">
+                                            <input type="hidden" name="servicioIndex" th:value="${iterStat.index}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('¿Eliminar este servicio del carrito?')">
+                                                <i class="fas fa-trash"></i> Quitar
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="border-top pt-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Total a Pagar:</h5>
+                                <h3 class="text-primary mb-0">
+                                    S/ <span th:text="${totalPagar}">0.00</span>
+                                </h3>
+                            </div>
+                            <button type="button" class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#modalDatosContrato">
+                                <i class="fas fa-credit-card"></i> Proceder al Pago (Contratar)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-download"></i> Mis Reportes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Descarga el resumen de tus servicios contratados (solo después de pagar)</p>
+
+                    <form th:action="@{/sesion/descargar-reporte}" method="get" class="mb-3">
+                        <button type="submit" class="btn btn-info w-100" th:disabled="${#lists.isEmpty(servicios)}">
+                            <i class="fas fa-file-pdf"></i> Descargar Reporte PDF
+                        </button>
+                    </form>
+
+                    <form th:action="@{/sesion/descargar-reporte-excel}" method="get">
+                        <button type="submit" class="btn btn-outline-info w-100" th:disabled="${#lists.isEmpty(servicios)}">
+                            <i class="fas fa-file-excel"></i> Descargar Excel
+                        </button>
+                    </form>
+
+                    <small class="text-muted d-block mt-2" th:unless="${#lists.isEmpty(servicios)}">
+                        <i class="fas fa-info-circle"></i> Debes finalizar el pago para descargar los reportes.
+                    </small>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/servicios" class="btn btn-outline-primary">
+                            <i class="fas fa-plus-circle"></i> Agregar Más Servicios
+                        </a>
+                        <a href="/verContratos" class="btn btn-outline-success">
+                            <i class="fas fa-file-contract"></i> Ver Mis Contratos
+                        </a>
+                        <a href="/galeria" class="btn btn-outline-primary">
+                            <i class="fas fa-images"></i> Ver Galería
+                        </a>
+                        <a href="/contacto" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope"></i> Contáctanos
+                        </a>
+                        <hr>
+                        <a href="/perfil/logout" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para capturar datos del contrato -->
+<div class="modal fade" id="modalDatosContrato" tabindex="-1" aria-labelledby="modalDatosContratoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalDatosContratoLabel">
+                    <i class="fas fa-clipboard-list"></i> Completar Datos del Contrato
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/sesion/procesar-pago}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">
+                            <i class="fas fa-phone"></i> Teléfono de Contacto *
+                        </label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono"
+                               placeholder="Ej: 987654321" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaEvento" class="form-label">
+                            <i class="fas fa-calendar"></i> Fecha del Evento *
+                        </label>
+                        <input type="date" class="form-control" id="fechaEvento" name="fechaEvento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lugar" class="form-label">
+                            <i class="fas fa-map-marker-alt"></i> Lugar del Evento *
+                        </label>
+                        <input type="text" class="form-control" id="lugar" name="lugar"
+                               placeholder="Ej: Hotel Libertador, Arequipa" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comentarios" class="form-label">
+                            <i class="fas fa-comment"></i> Comentarios Adicionales
+                        </label>
+                        <textarea class="form-control" id="comentarios" name="comentarios" rows="3"
+                                  placeholder="Algún detalle especial o requisito..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Confirmar y Contratar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Establecer fecha mínima como hoy
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.getElementById('fechaEvento');
+        if (fechaInput) {
+            const today = new Date().toISOString().split('T')[0];
+            fechaInput.setAttribute('min', today);
+        }
+    });
+</script>
+</body>
+</html>
