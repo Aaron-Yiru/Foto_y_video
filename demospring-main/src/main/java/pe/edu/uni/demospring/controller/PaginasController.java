@@ -26,8 +26,8 @@ public class PaginasController {
 
     @GetMapping("/servicios")
     public String mostrarServicios(Model model) {
-        // En lugar de pasar un objeto Contrato vacío, pasamos la lista de Servicios
-        model.addAttribute("serviciosDisponibles", serviciosDisponibles.values());
+        // ✅ Usa la misma lista que el panel de administración
+        model.addAttribute("servicios", GestionServiciosController.listaServicios);
         return "servicios";
     }
 
