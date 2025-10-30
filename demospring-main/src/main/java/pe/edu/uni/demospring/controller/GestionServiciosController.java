@@ -21,12 +21,10 @@ import java.util.UUID;
 @RequestMapping("/admin/gestionservicios")
 public class GestionServiciosController {
 
-    // ❌ La lista estática 'listaServicios' HA SIDO ELIMINADA.
-    // Los datos del catálogo ahora se gestionan EXCLUSIVAMENTE a través de ServicioService.
-
     private final ServicioService servicioService;
 
     // Directorio donde se guardarán las imágenes (asumiendo que está configurado)
+    // NOTA: Para archivos estáticos, la ruta 'static/images' es generalmente mejor.
     private static final String UPLOAD_DIR = "src/main/resources/static/images";
 
     @Autowired
@@ -40,7 +38,7 @@ public class GestionServiciosController {
 
     @GetMapping
     public String mostrarGestion(Model model) {
-        // ✅ Obtener la lista del catálogo usando el Servicio
+        // ✅ Obtener la lista del catálogo usando el Servicio (desde la DB)
         model.addAttribute("servicios", servicioService.listar());
         return "gestionservicios";
     }
@@ -54,15 +52,23 @@ public class GestionServiciosController {
             @RequestParam("nombre") String nombre,
             @RequestParam("descripcion") String descripcion,
             @RequestParam("precio") double precio,
-            @RequestParam("file") MultipartFile file, // Archivo subido
+            // ⭐ CORRECCIÓN CLAVE: La variable local se llama 'foto'
+            @RequestParam("foto") MultipartFile foto,
             RedirectAttributes ra) {
 
         String nombreArchivo = "servicio-generico.jpg"; // Default
 
-        if (!file.isEmpty()) {
+        // Usar la variable 'foto'
+        if (!foto.isEmpty()) {
             try {
+                // Asegurar que el nombre del archivo no sea nulo antes de operar
+                String originalFilename = foto.getOriginalFilename();
+                if (originalFilename == null || originalFilename.isEmpty()) {
+                    ra.addFlashAttribute("error", "Error: Nombre de archivo no encontrado.");
+                    return "redirect:/admin/gestionservicios";
+                }
+
                 // Generar un nombre único para el archivo
-                String originalFilename = file.getOriginalFilename();
                 String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 nombreArchivo = UUID.randomUUID().toString() + extension;
 
@@ -70,7 +76,7 @@ public class GestionServiciosController {
                 Path filePath = Paths.get(UPLOAD_DIR, nombreArchivo);
 
                 // Guardar el archivo en el sistema de archivos
-                Files.write(filePath, file.getBytes());
+                Files.write(filePath, foto.getBytes()); // Usar 'foto'
 
             } catch (IOException e) {
                 ra.addFlashAttribute("error", "Error al subir el archivo: " + e.getMessage());
@@ -81,7 +87,7 @@ public class GestionServiciosController {
         // ✅ Crear el servicio con la ruta web de la imagen
         String rutaWebFoto = "/images/" + nombreArchivo;
 
-        // El ID es nulo; el servicio se encargará de asignarle el ID secuencial
+        // El ID es nulo; el repositorio se encargará de asignarle el ID
         Servicio nuevoServicio = new Servicio(nombre, descripcion, precio, rutaWebFoto);
 
         // ✅ Usar el servicio para agregar
@@ -95,15 +101,11 @@ public class GestionServiciosController {
     // 3. Eliminar Servicio (DELETE)
     // ===========================================
 
-    @PostMapping("/eliminar/{id}")
-    public String eliminarServicio(@PathVariable Long id, RedirectAttributes ra) {
-        // ✅ Usar el servicio para eliminar
+    @PostMapping("/eliminar")
+    // Se cambia de @PathVariable a @RequestParam para coincidir con la plantilla HTML
+    public String eliminarServicio(@RequestParam Long id, RedirectAttributes ra) {
         servicioService.eliminar(id);
         ra.addFlashAttribute("mensaje", "Servicio con ID " + id + " eliminado.");
         return "redirect:/admin/gestionservicios";
     }
-
-    // Nota: Para completar la refactorización del catálogo, recuerda aplicar los cambios
-    // en PaginasController y PerfilController (como se detalló en la respuesta anterior)
-    // y asegurarte de que tu ServicioService contenga la lista inicial y la lógica de IDs.
 }
