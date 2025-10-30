@@ -1,0 +1,23 @@
+[33mcommit d1ae822e5d77ef704d042bdb0a50e282b075f36f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mrecuperacion[m[33m, [m[1;32mmain[m[33m)[m
+Author: MoureDev <Braismoureouredev.com>
+Date:   Wed Oct 29 23:29:35 2025 -0500
+
+    Guardando cambios antes de cambiar de rama
+
+ .idea/gradle.xml                                   |  2 [32m+[m[31m-[m
+ .idea/jarRepositories.xml                          | 20 [32m+++++[m
+ .../uni/demospring/configuration/WebConfig.java    |  7 [32m+[m[31m-[m
+ .../demospring/controller/ContactoController.java  | 39 [32m++++++++++[m
+ .../demospring/controller/EmpleadoController.java  | 54 [32m+++++++++++++[m
+ .../uni/demospring/controller/LoginController.java |  2 [32m+[m[31m-[m
+ .../java/pe/edu/uni/demospring/model/Contacto.java | 40 [32m++++++++++[m
+ .../java/pe/edu/uni/demospring/model/Empleado.java | 42 [32m++++++++++[m
+ .../demospring/repository/ContactoRepository.java  |  7 [32m++[m
+ .../demospring/repository/EmpleadoRepository.java  | 13 [32m++++[m
+ .../uni/demospring/service/ContactoService.java    | 23 [32m++++++[m
+ .../uni/demospring/service/EmpleadoService.java    | 38 [32m+++++++++[m
+ .../src/main/resources/templates/admin.html        | 16 [32m++++[m
+ .../src/main/resources/templates/contacto.html     | 24 [32m+++[m[31m---[m
+ .../src/main/resources/templates/formEmpleado.html | 62 [32m+++++++++++++++[m
+ .../main/resources/templates/gestionempleados.html | 89 [32m++++++++++++++++++++++[m
+ 16 files changed, 464 insertions(+), 14 deletions(-)
