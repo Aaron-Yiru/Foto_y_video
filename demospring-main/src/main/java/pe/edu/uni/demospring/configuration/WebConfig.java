@@ -19,9 +19,12 @@ public class WebConfig implements WebMvcConfigurer {
         Path uploadDir = Paths.get("uploads/images");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
-        // 🔗 Exponer esa carpeta para que se pueda acceder vía /images/**
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations(
+                        "classpath:/static/images/",
+                        "file:" + uploadPath + "/"
+                );
+
     }
 
     @Override
