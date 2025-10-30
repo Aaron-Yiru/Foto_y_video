@@ -46,13 +46,10 @@
         <source src="/videos/camara.mp4" type="video/mp4">
     </video>
     <div class="overlay">
-        <h1>
-            <span th:text="#{contact.header.title}">CONTÁCTANOS</span>
-        </h1>
+        <h1><span th:text="#{contact.header.title}">CONTÁCTANOS</span></h1>
         <p th:text="#{contact.header.subtitle}">Estamos listos para escuchar y ayudar con tus proyectos</p>
     </div>
 </header>
-
 
 <!-- Contenido de Contacto -->
 <main class="container my-5">
@@ -61,24 +58,29 @@
         <div class="col-md-6 mb-5 mb-md-0">
             <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm">
                 <h3 class="mb-4">Envíanos un mensaje</h3>
-                <form>
+
+                <!-- 🔹 Acción modificada para el nuevo controlador -->
+                <form th:action="@{/contacto-form/guardar}" method="post">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" required>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" required>
+                        <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="mb-3">
                         <label for="asunto" class="form-label">Asunto</label>
-                        <input type="text" class="form-control" id="asunto" required>
+                        <input type="text" class="form-control" id="asunto" name="asunto" required>
                     </div>
                     <div class="mb-3">
                         <label for="mensaje" class="form-label">Mensaje</label>
-                        <textarea class="form-control" id="mensaje" rows="5" required></textarea>
+                        <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Enviar Mensaje</button>
+
+                    <!-- 🔹 Mensaje de éxito mostrado desde el controlador -->
+                    <p class="text-success mt-3" th:if="${mensajeExito}" th:text="${mensajeExito}"></p>
                 </form>
             </div>
         </div>
@@ -95,7 +97,8 @@
 
                 <h3 class="mb-4">Nuestra Ubicación</h3>
                 <div class="map-container flex-grow-1">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3828.611139783969!2d-71.53675038515284!3d-16.402431742469446!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9149060b29c9a625%3A0xc312480d46d29622!2sAv.%20Parra%20204%2C%20Arequipa%2004001%2C%20Perú!5e0!3m2!1ses-419!2spe!4v1678229875411!5m2!1ses-419!2spe" allowfullscreen="" loading="lazy"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3828.611139783969!2d-71.53675038515284!3d-16.402431742469446!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9149060b29c9a625%3A0xc312480d46d29622!2sAv.%20Parra%20204%2C%20Arequipa%2004001%2C%20Perú!5e0!3m2!1ses-419!2spe!4v1678229875411!5m2!1ses-419!2spe"
+                            allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
@@ -145,3 +148,4 @@
 
 </body>
 </html>
+

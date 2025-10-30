@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Empleados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container mt-4">
+        <a href="/admin" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Panel del Administrador
+        </a>
+
+        </a>
+        <div>
+            <a href="/admin/logout" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users-cog text-warning"></i> Gestión de Empleados</h2>
+        <a href="/admin/nuevoempleado" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nuevo Empleado
+        </a>
+    </div>
+
+    <!-- Buscador -->
+    <div class="mb-3">
+        <input id="searchInput" type="text" class="form-control" placeholder="Buscar empleado por nombre o cargo...">
+    </div>
+
+    <!-- Tabla -->
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Cargo</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="empleadosTable">
+                <tr th:each="empleado : ${empleados}">
+                    <td th:text="${empleado.id}"></td>
+                    <td th:text="${empleado.nombre}"></td>
+                    <td th:text="${empleado.cargo}"></td>
+                    <td th:text="${empleado.email}"></td>
+                    <td th:text="${empleado.telefono}"></td>
+                    <td>
+                        <a th:href="@{/admin/editarEmpleado/{id}(id=${empleado.id})}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a th:href="@{/admin/eliminarEmpleado/{id}(id=${empleado.id})}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Seguro que deseas eliminar este empleado?');">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 🔍 Buscador dinámico (filtra filas en la tabla)
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        const searchText = this.value.toLowerCase();
+        const rows = document.querySelectorAll("#empleadosTable tr");
+        rows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            row.style.display = rowText.includes(searchText) ? "" : "none";
+        });
+    });
+</script>
+
+</body>
+</html>
