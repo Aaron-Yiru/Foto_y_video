@@ -24,29 +24,18 @@ public class ContratoController {
     // NOTA: Los métodos /guardarContrato y @ModelAttribute fueron ELIMINADOS,
     // ya que la lógica de contratación se movió a SesionController.
 
+    // Código que debe estar en el controlador que maneja /verContratos
     @GetMapping("/verContratos")
-    public String verContratos(Model model, HttpSession session) {
+    public String verContratos(Model model) {
+        // 1. Obtener todos los contratos de la DB
+        List<Contrato> contratos = contratoService.obtenerTodos(); // Debe retornar los contratos guardados
 
-        // 🔐 Si quieres restringir solo a admin, descomenta esto:
-        /*
-        if (session.getAttribute("adminLogueado") == null) {
-            return "redirect:/login";
-        }
-        */
+        // 2. Pasar datos al modelo
+        model.addAttribute("contratos", contratos); // <--- CLAVE CRÍTICA
+        model.addAttribute("totalContratos", contratos.size());
 
-        // Obtener los contratos pendientes guardados en el contexto global
-        @SuppressWarnings("unchecked")
-        List<Contrato> contratosPendientes = (List<Contrato>) session.getServletContext()
-                .getAttribute("contratosPendientes");
-
-        if (contratosPendientes == null) {
-            contratosPendientes = new ArrayList<>();
-        }
-
-        model.addAttribute("contratos", contratosPendientes);
-        model.addAttribute("totalContratos", contratosPendientes.size());
-
-        return "lista-contratos";
+        // 3. Retornar la vista corregida
+        return "lista-contratos"; // Debe coincidir con el nombre de tu archivo HTML
     }
 
     /**
@@ -105,7 +94,7 @@ public class ContratoController {
         model.addAttribute("contratos", contratosGuardados);
         model.addAttribute("totalContratos", contratosGuardados.size());
 
-        return "lista-contratos-guardados";
+        return "lista-contratos";
     }
 
 }

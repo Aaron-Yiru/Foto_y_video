@@ -33,6 +33,10 @@ dependencies {
     // ✅ Excel (Apache POI)
     implementation 'org.apache.poi:poi:5.3.0'
     implementation 'org.apache.poi:poi-ooxml:5.3.0'
+	implementation 'com.lowagie:itext:2.1.7'
+
+	// Generación de Excel: Apache POI (Soporte para formatos .xlsx)
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'

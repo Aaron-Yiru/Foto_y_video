@@ -14,7 +14,6 @@
 
 <body>
 
-<!-- 🔹 NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow">
     <div class="container">
         <a class="navbar-brand" href="#">Foto & Video</a>
@@ -23,33 +22,16 @@
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/index">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/servicios">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/index">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/servicios">Servicios</a></li>
                 <li class="nav-item"><a class="nav-link" href="/galeria">Galería</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contacto">Contáctanos</a></li>
-
-                <li class="nav-item" th:if="${usuarioLogueado}">
-                    <span class="nav-link text-white">
-                        <i class="fas fa-user-circle"></i> <span th:text="${nombreUsuario}"></span>
-                    </span>
-                </li>
-                <li class="nav-item" th:if="${usuarioLogueado}">
-                    <a class="nav-link btn btn-outline-danger rounded-pill ms-lg-3 px-4" href="/perfil/logout">
-                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                    </a>
-                </li>
-
-                <li class="nav-item" th:unless="${usuarioLogueado}">
-                    <a class="nav-link active btn btn-outline-light rounded-pill ms-lg-3 px-4" href="/perfil">
-                        <i class="fas fa-user"></i> Perfil / Iniciar Sesión
-                    </a>
-                </li>
+                <li class="nav-item"><a class="nav-link btn btn-outline-light rounded-pill ms-lg-3 px-4" href="/perfil">Perfil</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- 🔹 ENCABEZADO CON VIDEO -->
 <header class="hero-video">
     <video autoplay muted loop playsinline>
         <source src="/videos/camara.mp4" type="video/mp4">
@@ -62,10 +44,8 @@
     </div>
 </header>
 
-<!-- 🔹 CONTENIDO PRINCIPAL -->
 <main class="container my-5">
 
-    <!-- 🔸 Mensajes de éxito o error -->
     <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle"></i> <span th:text="${mensaje}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -75,14 +55,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- 🔹 TARJETAS DE SERVICIOS -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 
-        <!-- 🔹 Un solo bloque para todos los servicios -->
         <div class="col" th:each="servicio : ${servicios}">
             <div class="card h-100 p-4 border-0 shadow-sm">
 
-                <!-- 🎥 Videos para los tres primeros servicios -->
                 <video class="img-fluid w-100 rounded-3 mb-3"
                        autoplay muted loop playsinline
                        th:if="${servicio.id == 1 or servicio.id == 2 or servicio.id == 3}">
@@ -91,7 +68,6 @@
                     <source th:src="@{/videos/DRON-1.mp4}" type="video/mp4" th:if="${servicio.id == 3}" />
                 </video>
 
-                <!-- 🖼️ Mostrar imagen para los nuevos servicios -->
                 <img th:if="${servicio.id > 3}"
                      th:src="${servicio.foto != null && !#strings.isEmpty(servicio.foto)} ? ${servicio.foto} : '/images/servicio-generico.jpg'"
                      alt="Servicio" class="img-fluid w-100 rounded-3 mb-3" />
@@ -103,8 +79,7 @@
                         S/. <span th:text="${#numbers.formatDecimal(servicio.precio, 0, 'COMMA', 2, 'POINT')}">0.00</span>
                     </p>
 
-                    <!-- 🛒 Botón de Añadir al Carrito -->
-                    <form th:action="@{/sesion/agregar-servicio}" method="post">
+                    <form th:action="@{/perfil/agregar-servicio}" method="post">
                         <input type="hidden" name="servicioId" th:value="${servicio.id}" />
                         <button type="submit" class="btn btn-primary w-100">
                             Añadir al Carrito <i class="fas fa-cart-plus ms-2"></i>
@@ -117,7 +92,6 @@
     </div>
 </main>
 
-<!-- 🔹 FOOTER -->
 <footer class="footer py-5 mt-5">
     <div class="container">
         <div class="row">

@@ -1,34 +1,33 @@
 package pe.edu.uni.demospring.controller;
 
-import pe.edu.uni.demospring.model.Servicio;
+import pe.edu.uni.demospring.service.ServicioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Map;
-
 @Controller
 @RequestMapping("/")
 public class PaginasController {
 
-    // Lista de servicios disponibles (usada para la vista servicios.html)
-    private static final Map<Long, Servicio> serviciosDisponibles = Map.of(
-            1L, new Servicio(1L, "Video y Fotografía de Eventos", "Cobertura completa de bodas, bautizos, etc.", 500.00),
-            2L, new Servicio(2L, "Producción de Video", "Creación de contenido audiovisual corporativo y publicitario.", 800.00),
-            3L, new Servicio(3L, "Video y Fotografía con Drones", "Tomas aéreas impresionantes para eventos y propiedades.", 650.00)
-    );
+    // ❌ ELIMINADA cualquier referencia a una lista estática de servicios.
 
-    @GetMapping("/index")
-    public String index() {
-        return "index";
+    private final ServicioService servicioService; // ✅ Inyección de dependencia
+
+    @Autowired
+    public PaginasController(ServicioService servicioService) {
+        this.servicioService = servicioService;
     }
 
-    @GetMapping("/servicios")
-    public String mostrarServicios(Model model) {
-        // ✅ Usa la misma lista que el panel de administración
-        model.addAttribute("servicios", GestionServiciosController.listaServicios);
-        return "servicios";
+    // ===================================
+    // Vistas Públicas Generales
+    // ===================================
+
+    @GetMapping("/index")
+    public String index(Model model) {
+        // Asumiendo que /index solo devuelve la vista
+        return "index";
     }
 
     @GetMapping("/galeria")
@@ -39,6 +38,26 @@ public class PaginasController {
     @GetMapping("/contacto")
     public String contacto() {
         return "contacto";
+    }
+
+    // ===================================
+    // Vista de Servicios (Catálogo)
+    // ===================================
+
+    @GetMapping("/servicios")
+    public String mostrarServicios(Model model) {
+        // ✅ Obtiene la lista de servicios directamente desde el ServicioService
+        // Esto garantiza que la vista muestre los datos del catálogo en memoria (ServicioService)
+        // y resuelve la incoherencia de las listas estáticas.
+        model.addAttribute("servicios", servicioService.listar());
+        return "servicios";
+    }
+
+    // Nota: La ruta '/' suele redirigir a '/index' en muchas configuraciones.
+    // Si necesitas que '/' también funcione:
+    @GetMapping
+    public String rutaRaiz() {
+        return "redirect:/index";
     }
 }
 
