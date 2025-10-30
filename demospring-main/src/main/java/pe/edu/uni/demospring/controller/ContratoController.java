@@ -26,13 +26,16 @@ public class ContratoController {
 
     @GetMapping("/verContratos")
     public String verContratos(Model model, HttpSession session) {
-        // ELIMINADO: Verificación de admin - ahora cualquiera puede ver para propósitos de demostración
-        // Si quieres mantener seguridad, comenta las siguientes 3 líneas:
-        // if (session.getAttribute("adminLogueado") == null) {
-        //     return "redirect:/login";
-        // }
 
-        // Obtiene contratos pendientes de aprobación desde el contexto global
+        // 🔐 Si quieres restringir solo a admin, descomenta esto:
+        /*
+        if (session.getAttribute("adminLogueado") == null) {
+            return "redirect:/login";
+        }
+        */
+
+        // Obtener los contratos pendientes guardados en el contexto global
+        @SuppressWarnings("unchecked")
         List<Contrato> contratosPendientes = (List<Contrato>) session.getServletContext()
                 .getAttribute("contratosPendientes");
 
@@ -46,42 +49,49 @@ public class ContratoController {
         return "lista-contratos";
     }
 
+    /**
+     * ✅ Sube los contratos pendientes desde memoria a la base de datos (Supabase)
+     */
     @PostMapping("/contratos/subir")
-    public String subirContratos(HttpSession session, RedirectAttributes redirectAttributes) {
+    public String subirContratos(HttpSession session, RedirectAttributes ra) {
+
+        // 🔐 Solo un administrador puede subir contratos
         if (session.getAttribute("adminLogueado") == null) {
+            ra.addFlashAttribute("error", "Debes iniciar sesión como administrador para aprobar contratos.");
             return "redirect:/login";
         }
 
+        @SuppressWarnings("unchecked")
         List<Contrato> contratosPendientes = (List<Contrato>) session.getServletContext()
                 .getAttribute("contratosPendientes");
 
         if (contratosPendientes == null || contratosPendientes.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "No hay contratos pendientes para subir");
+            ra.addFlashAttribute("error", "⚠️ No hay contratos pendientes para subir.");
             return "redirect:/verContratos";
         }
 
         try {
-            // Guardar los contratos en la base de datos
+            // 🔹 Guardar los contratos en la base de datos
             for (Contrato contrato : contratosPendientes) {
-                contratoService.guardar(contrato);
+                contratoService.guardarContrato(contrato);
             }
 
             int cantidadGuardada = contratosPendientes.size();
 
-            // Limpiar los contratos pendientes después de guardarlos
+            // 🧹 Limpiar los contratos pendientes del contexto global
             session.getServletContext().removeAttribute("contratosPendientes");
 
-            redirectAttributes.addFlashAttribute("mensaje",
-                    "¡Contratos aprobados y guardados exitosamente! Se guardaron " +
-                            cantidadGuardada + " contrato(s) en la base de datos.");
+            ra.addFlashAttribute("mensaje",
+                    "✅ ¡Contratos aprobados y guardados exitosamente! Se guardaron "
+                            + cantidadGuardada + " contrato(s) en la base de datos.");
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Error al guardar los contratos: " + e.getMessage());
+            ra.addFlashAttribute("error", "❌ Error al guardar los contratos: " + e.getMessage());
         }
 
         return "redirect:/verContratos";
     }
+
 
     // Método adicional para ver todos los contratos guardados en BD
     @GetMapping("/contratos/guardados")
@@ -97,4 +107,5 @@ public class ContratoController {
 
         return "lista-contratos-guardados";
     }
+
 }

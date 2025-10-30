@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lista de Contratos Pendientes</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<!-- 🔹 NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="#">
             <i class="fas fa-camera"></i> Foto & Video
@@ -29,12 +32,15 @@
     </div>
 </nav>
 
+<!-- 🔹 CONTENIDO PRINCIPAL -->
 <div class="container my-5">
-    <!-- Alertas de mensajes -->
+
+    <!-- Alertas -->
     <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle"></i> <span th:text="${mensaje}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -42,20 +48,18 @@
 
     <!-- Encabezado -->
     <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-1"><i class="fas fa-clipboard-list text-primary"></i> Contratos Pendientes de Aprobación</h1>
-                    <p class="text-muted mb-0">Revisa y aprueba los contratos enviados por los clientes</p>
-                </div>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-5" th:text="${contratos.size()} + ' pendientes'">0 pendientes</span>
-                </div>
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-1"><i class="fas fa-clipboard-list text-primary"></i> Contratos Pendientes</h1>
+                <p class="text-muted mb-0">Revisa y aprueba los contratos enviados por los clientes</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-primary fs-5" th:text="${totalContratos} + ' pendientes'">0 pendientes</span>
             </div>
         </div>
     </div>
 
-    <!-- Mostrar mensaje si no hay contratos -->
+    <!-- Mensaje si no hay contratos -->
     <div th:if="${contratos.isEmpty()}" class="text-center py-5">
         <div class="card shadow-sm">
             <div class="card-body py-5">
@@ -69,14 +73,12 @@
         </div>
     </div>
 
-    <!-- Tabla si hay contratos -->
+    <!-- Tabla de contratos -->
     <div th:unless="${contratos.isEmpty()}">
         <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-list"></i> Listado de Contratos</h5>
-                    <span class="text-muted">Total: <strong th:text="${contratos.size()}">0</strong> contrato(s)</span>
-                </div>
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Listado de Contratos Pendientes</h5>
+                <span class="text-muted">Total: <strong th:text="${totalContratos}">0</strong></span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -87,10 +89,10 @@
                             <th><i class="fas fa-user"></i> Nombre</th>
                             <th><i class="fas fa-envelope"></i> Email</th>
                             <th><i class="fas fa-phone"></i> Teléfono</th>
-                            <th><i class="fas fa-calendar"></i> Fecha Evento</th>
+                            <th><i class="fas fa-calendar"></i> Fecha</th>
                             <th><i class="fas fa-map-marker-alt"></i> Lugar</th>
                             <th><i class="fas fa-briefcase"></i> Servicio</th>
-                            <th><i class="fas fa-comment"></i> Descripción/Comentarios</th>
+                            <th><i class="fas fa-comment"></i> Comentarios</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -98,24 +100,13 @@
                             <td class="text-center">
                                 <span class="badge bg-secondary" th:text="${iterStat.count}">1</span>
                             </td>
-                            <td>
-                                <strong th:text="${contrato.nombre}">Juan Pérez</strong>
-                            </td>
+                            <td><strong th:text="${contrato.nombre}">Juan Pérez</strong></td>
                             <td class="text-muted" th:text="${contrato.email}">correo@ejemplo.com</td>
-                            <td>
-                                <i class="fas fa-mobile-alt text-success"></i>
-                                <span th:text="${contrato.telefono}">987654321</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info" th:text="${contrato.fecha}">2025-10-20</span>
-                            </td>
+                            <td><i class="fas fa-mobile-alt text-success"></i> <span th:text="${contrato.telefono}">987654321</span></td>
+                            <td><span class="badge bg-info" th:text="${contrato.fecha}">2025-10-20</span></td>
                             <td th:text="${contrato.lugar}">Hotel Libertador</td>
-                            <td>
-                                <span class="badge bg-primary" th:text="${contrato.servicio}">Fotografía</span>
-                            </td>
-                            <td>
-                                <small class="text-muted" th:text="${contrato.comentarios}">Comentarios...</small>
-                            </td>
+                            <td><span class="badge bg-primary" th:text="${contrato.servicio}">Fotografía</span></td>
+                            <td><small class="text-muted" th:text="${contrato.comentarios}">Sin comentarios</small></td>
                         </tr>
                         </tbody>
                     </table>
@@ -123,32 +114,32 @@
             </div>
         </div>
 
-        <!-- Botones de acción -->
+        <!-- Acciones -->
         <div class="card shadow-sm mt-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="alert alert-warning mb-0">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Importante:</strong> Al aprobar, estos contratos se guardarán permanentemente en la base de datos.
-                        </div>
-                    </div>
-                    <div class="col-md-6 text-end d-flex align-items-center justify-content-end gap-2">
-                        <a href="/servicios" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver
-                        </a>
-                        <form th:action="@{/contratos/subir}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-success btn-lg"
-                                    onclick="return confirm('¿Estás seguro de aprobar y guardar estos ' + [[${contratos.size()}]] + ' contrato(s) en la base de datos?')">
-                                <i class="bi bi-cloud-upload"></i> Aprobar y Subir a la Base de Datos
-                            </button>
-                        </form>
-                    </div>
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-center">
+                <div class="alert alert-warning mb-0 w-auto">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Importante:</strong> Al aprobar, los contratos se guardarán permanentemente en la base de datos.
                 </div>
+
+                <!-- 🔹 Botón para subir contratos -->
+                <form th:action="@{/contratos/subir}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-success btn-lg"
+                            onclick="return confirm('¿Estás seguro de aprobar y guardar estos ' + [[${contratos.size()}]] + ' contrato(s)?')">
+                        <i class="bi bi-cloud-upload"></i> Aprobar y Subir a la Base de Datos
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- FOOTER -->
+<footer class="footer py-4 bg-dark text-light mt-5">
+    <div class="container text-center">
+        <p class="mb-0">&copy; 2025 Foto & Video Profesional. Todos los derechos reservados.</p>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

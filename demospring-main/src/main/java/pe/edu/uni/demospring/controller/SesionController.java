@@ -1,7 +1,8 @@
 package pe.edu.uni.demospring.controller;
 
-import pe.edu.uni.demospring.model.Contrato;
-import pe.edu.uni.demospring.model.Servicio;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,14 +10,35 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import jakarta.servlet.http.HttpSession;
 
-import java.time.LocalDate;
+import pe.edu.uni.demospring.model.Contrato;
+import pe.edu.uni.demospring.model.Servicio;
 import java.util.ArrayList;
+// Librerías para PDF (OpenPDF)
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+
+// Librerías para Excel (Apache POI)
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static pe.edu.uni.demospring.controller.GestionServiciosController.listaServicios;
 
 @Controller
 @RequestMapping("/sesion")
@@ -31,7 +53,8 @@ public class SesionController {
 
     @GetMapping
     public String mostrarSesion(Model model, HttpSession session) {
-        if (session.getAttribute("usuarioLogueado") == null) {
+        Boolean logueado = (Boolean) session.getAttribute("usuarioLogueado");
+        if (logueado == null || !logueado) {
             return "redirect:/perfil";
         }
 
@@ -54,28 +77,59 @@ public class SesionController {
     }
 
     @PostMapping("/agregar-servicio")
-    public String agregarServicio(@RequestParam("servicioId") Long servicioId, HttpSession session, RedirectAttributes ra) {
-        if (session.getAttribute("usuarioLogueado") == null) {
-            // Requiere iniciar sesión antes de agregar al carrito
+    public String agregarServicio(@RequestParam("servicioId") Long servicioId,
+                                  HttpSession session,
+                                  RedirectAttributes ra) {
+        // ✅ Verificar si el usuario está logueado
+        Boolean logueado = (Boolean) session.getAttribute("usuarioLogueado");
+        if (logueado == null || !logueado) {
             ra.addFlashAttribute("error", "Necesitas iniciar sesión para contratar servicios.");
             return "redirect:/perfil";
         }
 
-        Servicio servicio = serviciosDisponibles.get(servicioId);
+        // 🔹 Buscar el servicio tanto en la lista dinámica como en los predefinidos
+        Servicio servicio = null;
+
+        // Primero busca en los servicios del panel de gestión (dinámicos)
+        for (Servicio s : pe.edu.uni.demospring.controller.GestionServiciosController.listaServicios) {
+            if (s.getId().equals(servicioId)) {
+                servicio = s;
+                break;
+            }
+        }
+
+        // Si no lo encuentra ahí, intenta buscar en el mapa predefinido
+        if (servicio == null) {
+            servicio = serviciosDisponibles.get(servicioId);
+        }
+
         if (servicio != null) {
             @SuppressWarnings("unchecked")
             List<Servicio> carrito = (List<Servicio>) session.getAttribute("carrito");
             if (carrito == null) {
                 carrito = new ArrayList<>();
             }
-            carrito.add(servicio);
-            session.setAttribute("carrito", carrito);
-            ra.addFlashAttribute("mensaje", "Servicio '" + servicio.getNombre() + "' añadido al carrito.");
+
+            // ⚙️ (Opcional pero recomendado) Evita duplicar servicios en el carrito
+            boolean yaExiste = carrito.stream()
+                    .anyMatch(s -> s.getId().equals(servicioId));
+
+            if (yaExiste) {
+                ra.addFlashAttribute("error", "El servicio '" + servicio.getNombre() + "' ya está en tu carrito.");
+            } else {
+                carrito.add(servicio);
+                session.setAttribute("carrito", carrito);
+
+                // ✅ Mensaje visible tras redirección a /servicios
+                ra.addFlashAttribute("mensaje", "Servicio '" + servicio.getNombre() + "' añadido al carrito.");
+            }
+        } else {
+            ra.addFlashAttribute("error", "El servicio seleccionado no existe o fue eliminado.");
         }
 
-        // Redirigir a servicios para que pueda agregar más
         return "redirect:/servicios";
     }
+
 
     @PostMapping("/eliminar-servicio")
     public String eliminarServicio(@RequestParam("servicioIndex") int servicioIndex, HttpSession session, RedirectAttributes ra) {
@@ -163,10 +217,87 @@ public class SesionController {
 
         return "redirect:/sesion";
     }
+    @GetMapping("/descargar-reporte")
+    public void descargarPDF(HttpServletResponse response, HttpSession session) throws IOException, DocumentException {
+
+        List<Servicio> servicios = (List<Servicio>) session.getAttribute("carrito");
+
+
+        if (servicios == null || servicios.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No hay servicios para exportar");
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=servicios.pdf");
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+
+        Font tituloFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+        Paragraph titulo = new Paragraph("📋 Reporte de Servicios Contratados\n\n", tituloFont);
+        titulo.setAlignment(Element.ALIGN_CENTER);
+        document.add(titulo);
+
+        PdfPTable table = new PdfPTable(3);
+        table.setWidthPercentage(100);
+        table.addCell("Servicio");
+        table.addCell("Descripción");
+        table.addCell("Precio (S/.)");
+
+        double total = 0;
+        for (Servicio s : servicios) {
+            table.addCell(s.getNombre());
+            table.addCell(s.getDescripcion());
+            table.addCell(String.format("%.2f", s.getPrecio()));
+            total += s.getPrecio();
+        }
+
+        document.add(table);
+        document.add(new Paragraph("\nTotal: S/ " + String.format("%.2f", total)));
+        document.close();
+    }
+
 
     @GetMapping("/descargar-reporte-excel")
-    public String descargarReporteExcel(RedirectAttributes ra) {
-        ra.addFlashAttribute("mensaje", "Reporte Excel en generación (simulación)...");
-        return "redirect:/sesion";
+    public void descargarExcel(HttpServletResponse response, HttpSession session) throws IOException {
+
+        List<Servicio> servicios = (List<Servicio>) session.getAttribute("carrito");
+
+
+        if (servicios == null || servicios.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No hay servicios para exportar");
+            return;
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=servicios.xlsx");
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Servicios");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Servicio");
+        header.createCell(1).setCellValue("Descripción");
+        header.createCell(2).setCellValue("Precio (S/.)");
+
+        int rowCount = 1;
+        double total = 0;
+        for (Servicio s : servicios) {
+            Row row = sheet.createRow(rowCount++);
+            row.createCell(0).setCellValue(s.getNombre());
+            row.createCell(1).setCellValue(s.getDescripcion());
+            row.createCell(2).setCellValue(s.getPrecio());
+            total += s.getPrecio();
+        }
+
+        Row totalRow = sheet.createRow(rowCount);
+        totalRow.createCell(1).setCellValue("Total:");
+        totalRow.createCell(2).setCellValue(total);
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
+
 }

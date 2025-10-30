@@ -6,6 +6,7 @@ public class Servicio {
     private String nombre;
     private String descripcion;
     private double precio;
+    private String foto; // ✅ NUEVO campo para la imagen o ruta
 
     public Servicio() {
     }
@@ -17,7 +18,16 @@ public class Servicio {
         this.precio = precio;
     }
 
-    // Getters y Setters
+    // ✅ Nuevo constructor con foto
+    public Servicio(Long id, String nombre, String descripcion, double precio, String foto) {
+        this.id = id;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precio = precio;
+        this.foto = foto;
+    }
+
+    // ✅ Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -30,8 +40,17 @@ public class Servicio {
     public double getPrecio() { return precio; }
     public void setPrecio(double precio) { this.precio = precio; }
 
+    public String getFoto() { return foto; }
+    public void setFoto(String foto) { this.foto = foto; }
+
     @Override
     public String toString() {
-        return "Servicio{" + "id=" + id + ", nombre='" + nombre + "', precio=" + precio + '}';
+        return "Servicio{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", descripcion='" + descripcion + '\'' +
+                ", precio=" + precio +
+                ", foto='" + foto + '\'' +
+                '}';
     }
 }
