@@ -55,7 +55,7 @@ public class LoginController {
 
         } else {
             // Login fallido
-            System.out.println("❌ Credenciales incorrectas para: " + email);
+            System.out.println(" Credenciales incorrectas para: " + email);
 
             redirectAttributes.addFlashAttribute("error",
                     "Credenciales incorrectas. Intenta nuevamente.");
