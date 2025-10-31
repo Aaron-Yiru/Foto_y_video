@@ -1,10 +1,12 @@
 package pe.edu.uni.demospring.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import pe.edu.uni.demospring.model.Servicio;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import pe.edu.uni.demospring.repository.ServicioRepository;
 
 import java.util.Map;
 
@@ -24,13 +26,15 @@ public class PaginasController {
         return "index";
     }
 
+    @Autowired
+    private ServicioRepository servicioRepository; // ✅ Inyección del repositorio
+
+
     @GetMapping("/servicios")
     public String mostrarServicios(Model model) {
-        // ✅ Usa la misma lista que el panel de administración
-        model.addAttribute("servicios", GestionServiciosController.listaServicios);
+        model.addAttribute("servicios", servicioRepository.findAll()); // ✅ llamado correcto
         return "servicios";
     }
-
     @GetMapping("/galeria")
     public String galeria() {
         return "galeria";

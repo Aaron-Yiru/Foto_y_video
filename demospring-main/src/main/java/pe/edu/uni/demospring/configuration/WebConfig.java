@@ -12,12 +12,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 📂 Carpeta física donde se guardan las imágenes subidas
-        Path uploadDir = Paths.get("uploads/images");
+        // Servir recursos estáticos de /static
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/");
+
+        // Servir imágenes subidas en uploads/images + imágenes estáticas antiguas
+        Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads/images");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
-        // 🔗 Exponer esa carpeta para que se pueda acceder vía /images/**
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations(
+                        "file:" + uploadPath + "/",      // nuevas imágenes subidas
+                        "classpath:/static/images/"     // imágenes existentes en static/images
+                );
     }
 }

@@ -4,51 +4,39 @@
     <meta charset="UTF-8">
     <title>Gestión de Servicios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <script src="https://kit.fontawesome.com/a2e0e6ad4d.js" crossorigin="anonymous"></script>
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Montserrat', sans-serif;
-        }
-        .preview-img {
-            max-height: 120px;
-            border-radius: 8px;
-            margin-top: 8px;
-        }
+        body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
+        .preview-img { max-height: 120px; border-radius: 8px; margin-top: 8px; }
+        .table img { max-width: 90px; border-radius: 8px; }
     </style>
 </head>
-<body class="bg-light">
-
+<body>
 <div class="container py-5">
-    <h2 class="mb-4 text-center text-primary">📋 Gestión de Servicios</h2>
+    <h2 class="mb-4 text-center text-primary fw-bold">📋 Gestión de Servicios</h2>
 
-    <!-- Formulario para agregar servicios -->
+    <!-- =================== FORMULARIO AGREGAR =================== -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title mb-3">Agregar Nuevo Servicio</h5>
-            <form th:action="@{/admin/gestionservicios/agregar}" method="post" enctype="multipart/form-data" class="row g-3">
-
+            <h5 class="card-title mb-3 fw-semibold">Agregar Nuevo Servicio</h5>
+            <form th:action="@{/gestionservicios/agregar}" method="post" enctype="multipart/form-data" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">Nombre del servicio</label>
+                    <label class="form-label">Nombre del servicio</label>
                     <input type="text" name="nombre" class="form-control" placeholder="Ej. Fotografía para eventos" required>
                 </div>
-
                 <div class="col-md-5">
-                    <label class="form-label fw-semibold">Descripción</label>
+                    <label class="form-label">Descripción</label>
                     <input type="text" name="descripcion" class="form-control" placeholder="Describe brevemente el servicio" required>
                 </div>
-
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold">Precio (S/)</label>
+                    <label class="form-label">Precio (S/)</label>
                     <input type="number" name="precio" step="0.01" class="form-control" placeholder="500.00" required>
                 </div>
-
                 <div class="col-md-6 mt-3">
-                    <label class="form-label fw-semibold">Imagen del servicio</label>
+                    <label class="form-label">Imagen del servicio</label>
                     <input type="file" name="foto" class="form-control" id="fotoInput" accept="image/*" required>
                     <img id="preview" class="preview-img d-none" alt="Vista previa de imagen">
                 </div>
-
                 <div class="col-12 text-center mt-4">
                     <button type="submit" class="btn btn-success px-5">
                         <i class="fas fa-plus-circle"></i> Agregar Servicio
@@ -58,12 +46,24 @@
         </div>
     </div>
 
-    <!-- Tabla de servicios -->
+    <!-- =================== BUSCADOR Y BOTÓN ACTUALIZAR =================== -->
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-8">
+            <input type="text" id="buscarInput" class="form-control" placeholder="🔍 Buscar por nombre o descripción...">
+        </div>
+        <div class="col-md-4 text-end mt-2 mt-md-0">
+            <button id="btnActualizar" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i> Actualizar Base de Datos
+            </button>
+        </div>
+    </div>
+
+    <!-- =================== TABLA DE SERVICIOS =================== -->
     <div class="card shadow-sm">
         <div class="card-body">
-            <h5 class="card-title mb-3 text-center">Servicios Registrados</h5>
+            <h5 class="card-title mb-3 text-center fw-semibold">Servicios Registrados</h5>
             <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table table-bordered table-hover align-middle" id="tablaServicios">
                     <thead class="table-dark text-center">
                     <tr>
                         <th>ID</th>
@@ -75,21 +75,28 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="servicio : ${servicios}">
+                    <tr th:each="servicio : ${servicios}" th:id="'fila-' + ${servicio.id}">
                         <td th:text="${servicio.id}" class="text-center"></td>
                         <td class="text-center">
-                            <img th:src="@{${servicio.foto}}" width="90" class="rounded shadow-sm" alt="Imagen del servicio">
+                            <img th:src="@{${servicio.foto}}" alt="Imagen del servicio">
                         </td>
                         <td th:text="${servicio.nombre}"></td>
                         <td th:text="${servicio.descripcion}"></td>
                         <td class="text-end" th:text="${#numbers.formatDecimal(servicio.precio, 0, 'COMMA', 2, 'POINT')}"></td>
                         <td class="text-center">
-                            <form th:action="@{/admin/gestionservicios/eliminar}" method="post">
-                                <input type="hidden" name="id" th:value="${servicio.id}">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash-alt"></i> Eliminar
-                                </button>
-                            </form>
+                            <button class="btn btn-warning btn-sm me-1"
+                                    th:attr="data-id=${servicio.id},
+                                             data-nombre=${servicio.nombre},
+                                             data-descripcion=${servicio.descripcion},
+                                             data-precio=${servicio.precio}"
+                                    onclick="abrirModalEditar(this)">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm"
+                                    th:attr="data-id=${servicio.id}, data-nombre=${servicio.nombre}"
+                                    onclick="confirmarEliminar(this)">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </button>
                         </td>
                     </tr>
                     </tbody>
@@ -99,23 +106,80 @@
     </div>
 
     <div class="text-center mt-4">
-        <a href="/admin" class="btn btn-secondary">
-            ⬅ Volver al Panel
-        </a>
-        <a href="/servicios" class="btn btn-primary ms-2">
-            🌐 Ver Página Pública
-        </a>
+        <a href="/admin" class="btn btn-secondary">⬅ Volver al Panel</a>
+        <a href="/servicios" class="btn btn-primary ms-2">🌐 Ver Página Pública</a>
     </div>
 </div>
 
-<script src="https://kit.fontawesome.com/a2e0e6ad4d.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- =================== MODAL EDITAR =================== -->
+<div class="modal fade" id="modalEditar" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form th:action="@{/gestionservicios/editar}" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">✏️ Editar Servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="editId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="nombre" id="editNombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Precio (S/)</label>
+                            <input type="number" name="precio" id="editPrecio" step="0.01" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Descripción</label>
+                            <textarea name="descripcion" id="editDescripcion" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Actualizar Imagen</label>
+                            <input type="file" name="foto" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
+<!-- =================== MODAL CONFIRMAR ELIMINAR =================== -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/gestionservicios/eliminar}" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">⚠️ Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Seguro que deseas eliminar el servicio <strong id="nombreEliminar"></strong>?</p>
+                    <input type="hidden" name="id" id="idEliminar">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- =================== SCRIPTS =================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Previsualización de imagen antes de subir
+    // Preview imagen agregar
     const fotoInput = document.getElementById('fotoInput');
     const preview = document.getElementById('preview');
-
     fotoInput.addEventListener('change', () => {
         const file = fotoInput.files[0];
         if (file) {
@@ -125,7 +189,56 @@
             preview.classList.add('d-none');
         }
     });
-</script>
 
+    // Filtro de búsqueda
+    document.getElementById('buscarInput').addEventListener('input', function () {
+        const filtro = this.value.toLowerCase();
+        document.querySelectorAll('#tablaServicios tbody tr').forEach(fila => {
+            const texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(filtro) ? '' : 'none';
+        });
+    });
+
+    // Modal editar
+    function abrirModalEditar(btn) {
+        document.getElementById('editId').value = btn.dataset.id;
+        document.getElementById('editNombre').value = btn.dataset.nombre;
+        document.getElementById('editDescripcion').value = btn.dataset.descripcion;
+        document.getElementById('editPrecio').value = btn.dataset.precio;
+        new bootstrap.Modal(document.getElementById('modalEditar')).show();
+    }
+
+    // Modal eliminar
+    function confirmarEliminar(btn) {
+        document.getElementById('idEliminar').value = btn.dataset.id;
+        document.getElementById('nombreEliminar').textContent = btn.dataset.nombre;
+        new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+    }
+
+    // =================== BOTÓN ACTUALIZAR BASE DE DATOS ===================
+    document.getElementById('btnActualizar').addEventListener('click', async () => {
+        const btn = document.getElementById('btnActualizar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+
+        try {
+            const response = await fetch('/gestionservicios', { method: 'GET' });
+            const html = await response.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const nuevaTabla = doc.querySelector('#tablaServicios tbody');
+
+            document.querySelector('#tablaServicios tbody').innerHTML = nuevaTabla.innerHTML;
+            alert('✅ Tabla actualizada con los últimos datos de la base de datos.');
+        } catch (error) {
+            console.error(error);
+            alert('❌ Error al actualizar los datos.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar Base de Datos';
+        }
+    });
+</script>
 </body>
 </html>

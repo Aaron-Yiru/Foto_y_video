@@ -10,13 +10,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pe.edu.uni.demospring.model.Contrato;
 import pe.edu.uni.demospring.model.Servicio;
+import pe.edu.uni.demospring.repository.ServicioRepository;
+
+import java.io.IOException;
 import java.util.ArrayList;
-// Librerías para PDF (OpenPDF)
+import java.util.List;
+
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -27,29 +30,17 @@ import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-// Librerías para Excel (Apache POI)
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
-import static pe.edu.uni.demospring.controller.GestionServiciosController.listaServicios;
-
 @Controller
 @RequestMapping("/sesion")
 public class SesionController {
 
-    // Lista de servicios disponibles (simulando datos de la DB)
-    private static final Map<Long, Servicio> serviciosDisponibles = Map.of(
-            1L, new Servicio(1L, "Video y Fotografía de Eventos", "Cobertura completa de bodas, bautizos, etc.", 500.00),
-            2L, new Servicio(2L, "Producción de Video", "Creación de contenido audiovisual corporativo y publicitario.", 800.00),
-            3L, new Servicio(3L, "Video y Fotografía con Drones", "Tomas aéreas impresionantes para eventos y propiedades.", 650.00)
-    );
+    @Autowired
+    private ServicioRepository servicioRepository;
 
     @GetMapping
     public String mostrarSesion(Model model, HttpSession session) {
@@ -58,7 +49,6 @@ public class SesionController {
             return "redirect:/perfil";
         }
 
-        // --- Lógica del Carrito ---
         @SuppressWarnings("unchecked")
         List<Servicio> carrito = (List<Servicio>) session.getAttribute("carrito");
         if (carrito == null) {
@@ -71,7 +61,6 @@ public class SesionController {
         model.addAttribute("emailUsuario", session.getAttribute("emailUsuario"));
         model.addAttribute("servicios", carrito);
         model.addAttribute("totalPagar", String.format("%.2f", totalPagar));
-        // --------------------------
 
         return "sesion";
     }
@@ -80,56 +69,38 @@ public class SesionController {
     public String agregarServicio(@RequestParam("servicioId") Long servicioId,
                                   HttpSession session,
                                   RedirectAttributes ra) {
-        // ✅ Verificar si el usuario está logueado
         Boolean logueado = (Boolean) session.getAttribute("usuarioLogueado");
         if (logueado == null || !logueado) {
             ra.addFlashAttribute("error", "Necesitas iniciar sesión para contratar servicios.");
             return "redirect:/perfil";
         }
 
-        // 🔹 Buscar el servicio tanto en la lista dinámica como en los predefinidos
-        Servicio servicio = null;
+        Servicio servicio = servicioRepository.findById(servicioId).orElse(null);
 
-        // Primero busca en los servicios del panel de gestión (dinámicos)
-        for (Servicio s : pe.edu.uni.demospring.controller.GestionServiciosController.listaServicios) {
-            if (s.getId().equals(servicioId)) {
-                servicio = s;
-                break;
-            }
-        }
-
-        // Si no lo encuentra ahí, intenta buscar en el mapa predefinido
         if (servicio == null) {
-            servicio = serviciosDisponibles.get(servicioId);
+            ra.addFlashAttribute("error", "El servicio seleccionado no existe o fue eliminado.");
+            return "redirect:/servicios";
         }
 
-        if (servicio != null) {
-            @SuppressWarnings("unchecked")
-            List<Servicio> carrito = (List<Servicio>) session.getAttribute("carrito");
-            if (carrito == null) {
-                carrito = new ArrayList<>();
-            }
+        @SuppressWarnings("unchecked")
+        List<Servicio> carrito = (List<Servicio>) session.getAttribute("carrito");
+        if (carrito == null) {
+            carrito = new ArrayList<>();
+        }
 
-            // ⚙️ (Opcional pero recomendado) Evita duplicar servicios en el carrito
-            boolean yaExiste = carrito.stream()
-                    .anyMatch(s -> s.getId().equals(servicioId));
+        boolean yaExiste = carrito.stream()
+                .anyMatch(s -> s.getId().equals(servicioId));
 
-            if (yaExiste) {
-                ra.addFlashAttribute("error", "El servicio '" + servicio.getNombre() + "' ya está en tu carrito.");
-            } else {
-                carrito.add(servicio);
-                session.setAttribute("carrito", carrito);
-
-                // ✅ Mensaje visible tras redirección a /servicios
-                ra.addFlashAttribute("mensaje", "Servicio '" + servicio.getNombre() + "' añadido al carrito.");
-            }
+        if (yaExiste) {
+            ra.addFlashAttribute("error", "El servicio '" + servicio.getNombre() + "' ya está en tu carrito.");
         } else {
-            ra.addFlashAttribute("error", "El servicio seleccionado no existe o fue eliminado.");
+            carrito.add(servicio);
+            session.setAttribute("carrito", carrito);
+            ra.addFlashAttribute("mensaje", "Servicio '" + servicio.getNombre() + "' añadido al carrito.");
         }
 
         return "redirect:/servicios";
     }
-
 
     @PostMapping("/eliminar-servicio")
     public String eliminarServicio(@RequestParam("servicioIndex") int servicioIndex, HttpSession session, RedirectAttributes ra) {
@@ -154,7 +125,6 @@ public class SesionController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Obtener datos del usuario desde la sesión
         String nombreUsuario = (String) session.getAttribute("nombreUsuario");
         String emailUsuario = (String) session.getAttribute("emailUsuario");
 
@@ -163,17 +133,14 @@ public class SesionController {
             return "redirect:/perfil";
         }
 
-        // Obtener servicios del carrito (usar "carrito" en lugar de "servicios")
         @SuppressWarnings("unchecked")
         List<Servicio> servicios = (List<Servicio>) session.getAttribute("carrito");
 
-        // Validar que hay servicios en el carrito
         if (servicios == null || servicios.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "No hay servicios en el carrito");
             return "redirect:/sesion";
         }
 
-        // Obtener o crear la lista de contratos pendientes globales (para el admin)
         @SuppressWarnings("unchecked")
         List<Contrato> contratosPendientes = (List<Contrato>) session.getServletContext()
                 .getAttribute("contratosPendientes");
@@ -181,7 +148,6 @@ public class SesionController {
             contratosPendientes = new ArrayList<>();
         }
 
-        // Crear un contrato por cada servicio contratado
         for (Servicio servicio : servicios) {
             Contrato contrato = new Contrato();
             contrato.setNombre(nombreUsuario);
@@ -191,7 +157,6 @@ public class SesionController {
             contrato.setLugar(lugar);
             contrato.setServicio(servicio.getNombre());
 
-            // Combinar descripción del servicio con comentarios adicionales
             String comentariosFinal = servicio.getDescripcion();
             if (comentarios != null && !comentarios.trim().isEmpty()) {
                 comentariosFinal += " | Comentarios: " + comentarios;
@@ -201,15 +166,9 @@ public class SesionController {
             contratosPendientes.add(contrato);
         }
 
-        // Guardar la lista actualizada de contratos pendientes en el contexto global
         session.getServletContext().setAttribute("contratosPendientes", contratosPendientes);
-
-        // Limpiar el carrito después de procesar
         session.removeAttribute("carrito");
-
-        // Recalcular total a 0
-        double totalPagar = 0.0;
-        session.setAttribute("totalPagar", String.format("%.2f", totalPagar));
+        session.setAttribute("totalPagar", String.format("%.2f", 0.0));
 
         redirectAttributes.addFlashAttribute("mensaje",
                 "¡Contrato(s) enviado(s) exitosamente! Se han enviado " + servicios.size() +
@@ -217,11 +176,11 @@ public class SesionController {
 
         return "redirect:/sesion";
     }
+
     @GetMapping("/descargar-reporte")
     public void descargarPDF(HttpServletResponse response, HttpSession session) throws IOException, DocumentException {
-
+        @SuppressWarnings("unchecked")
         List<Servicio> servicios = (List<Servicio>) session.getAttribute("carrito");
-
 
         if (servicios == null || servicios.isEmpty()) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No hay servicios para exportar");
@@ -259,12 +218,10 @@ public class SesionController {
         document.close();
     }
 
-
     @GetMapping("/descargar-reporte-excel")
     public void descargarExcel(HttpServletResponse response, HttpSession session) throws IOException {
-
+        @SuppressWarnings("unchecked")
         List<Servicio> servicios = (List<Servicio>) session.getAttribute("carrito");
-
 
         if (servicios == null || servicios.isEmpty()) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No hay servicios para exportar");
@@ -299,5 +256,4 @@ public class SesionController {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
-
 }

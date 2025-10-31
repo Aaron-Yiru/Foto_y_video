@@ -1,37 +1,52 @@
 package pe.edu.uni.demospring.controller;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.uni.demospring.model.Servicio;
+import pe.edu.uni.demospring.repository.ServicioRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.*;
 
 @Controller
 public class GestionServiciosController {
 
-    // Lista compartida entre admin y vista pública
-    static final List<Servicio> listaServicios = new ArrayList<>();
+    @Autowired
+    private ServicioRepository servicioRepository;
 
-    static {
-        listaServicios.add(new Servicio(1L, "Video y Fotografía de Eventos", "Cobertura completa de bodas, bautizos, etc.", 500.00, "/img/servicios/evento.jpg"));
-        listaServicios.add(new Servicio(2L, "Producción de Video", "Creación de contenido audiovisual corporativo y publicitario.", 800.00, "/img/servicios/video1.jpg"));
-        listaServicios.add(new Servicio(3L, "Video y Fotografía con Drones", "Tomas aéreas impresionantes para eventos y propiedades.", 650.00, "/img/servicios/dron.jpg"));
-    }
+    private final Path uploadDir = Paths.get("uploads/images");
 
+    // =================== Mostrar página ===================
+    // =================== Mostrar página con búsqueda ===================
+    @GetMapping("/gestionservicios")
+    public String mostrarGestionServicios(
+            HttpSession session,
+            Model model,
+            @RequestParam(value = "keyword", required = false) String keyword
+    ) {
+        if (session.getAttribute("adminLogueado") == null) {
+            return "redirect:/admin";
+        }
 
+        if (keyword != null && !keyword.isEmpty()) {
+            model.addAttribute("servicios",
+                    servicioRepository.findByNombreContainingIgnoreCaseOrDescripcionContainingIgnoreCase(keyword, keyword));
+            model.addAttribute("keyword", keyword);
+        } else {
+            model.addAttribute("servicios", servicioRepository.findAll());
+        }
 
-    // --- PANEL DE ADMINISTRACIÓN ---
-    @GetMapping("/admin/gestionservicios")
-    public String mostrarPaginaAdmin(Model model) {
-        model.addAttribute("servicios", listaServicios);
+        model.addAttribute("servicio", new Servicio());
         return "gestionservicios";
     }
 
-    @PostMapping("/admin/gestionservicios/agregar")
+
+    // =================== Agregar servicio ===================
+    @PostMapping("/gestionservicios/agregar")
     public String agregarServicio(
             @RequestParam String nombre,
             @RequestParam String descripcion,
@@ -39,39 +54,88 @@ public class GestionServiciosController {
             @RequestParam("foto") MultipartFile foto
     ) throws IOException {
 
-        // 📁 Carpeta donde se guardarán las imágenes (fuera de /static)
-        String uploadDir = "uploads/images/";
-        java.nio.file.Files.createDirectories(java.nio.file.Paths.get(uploadDir));
-
-        // 📸 Nombre del archivo
-        String nombreArchivo = foto.getOriginalFilename();
-
-        // ✅ Guardar físicamente la imagen en el disco
-        if (nombreArchivo != null && !foto.isEmpty()) {
-            java.nio.file.Path rutaArchivo = java.nio.file.Paths.get(uploadDir + nombreArchivo);
-            java.nio.file.Files.copy(foto.getInputStream(), rutaArchivo, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        // Crear carpeta si no existe
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
         }
 
-        // 🌐 Ruta pública accesible desde el navegador
-        String rutaWeb = "/images/" + nombreArchivo;
+        // Guardar imagen
+        String nombreArchivo = System.currentTimeMillis() + "_" + foto.getOriginalFilename();
+        Path rutaArchivo = uploadDir.resolve(nombreArchivo);
+        Files.copy(foto.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
 
-        // 🆕 Agregar el nuevo servicio con su imagen real
-        listaServicios.add(new Servicio(
-                (long) (listaServicios.size() + 1),
-                nombre,
-                descripcion,
-                precio,
-                rutaWeb
-        ));
+        // Guardar datos en BD
+        Servicio servicio = new Servicio();
+        servicio.setNombre(nombre);
+        servicio.setDescripcion(descripcion);
+        servicio.setPrecio(precio);
+        servicio.setFoto("/images/" + nombreArchivo);
 
-        return "redirect:/admin/gestionservicios";
+        servicioRepository.save(servicio);
+        return "redirect:/gestionservicios";
     }
 
-
-    @PostMapping("/admin/gestionservicios/eliminar")
-    public String eliminarServicio(@RequestParam Long id) {
-        listaServicios.removeIf(s -> s.getId().equals(id));
-        return "redirect:/admin/gestionservicios";
+    // =================== Eliminar servicio ===================
+    @PostMapping("/gestionservicios/eliminar")
+    public String eliminarServicio(@RequestParam Long id) throws IOException {
+        Servicio servicio = servicioRepository.findById(id).orElse(null);
+        if (servicio != null) {
+            // Eliminar imagen del disco
+            if (servicio.getFoto() != null && servicio.getFoto().startsWith("/images/")) {
+                Path rutaFoto = uploadDir.resolve(servicio.getFoto().substring(8)); // remove "/images/"
+                Files.deleteIfExists(rutaFoto);
+            }
+            servicioRepository.deleteById(id);
+        }
+        return "redirect:/gestionservicios";
     }
 
+    // =================== Mostrar formulario de edición ===================
+    @GetMapping("/gestionservicios/editar/{id}")
+    public String mostrarFormularioEdicion(@PathVariable Long id, Model model) {
+        Servicio servicio = servicioRepository.findById(id).orElse(null);
+        if (servicio == null) {
+            return "redirect:/gestionservicios";
+        }
+        model.addAttribute("servicio", servicio);
+        return "editarservicio";
+    }
+
+    // =================== Procesar edición ===================
+    @PostMapping("/gestionservicios/editar")
+    public String editarServicio(
+            @RequestParam Long id,
+            @RequestParam String nombre,
+            @RequestParam String descripcion,
+            @RequestParam double precio,
+            @RequestParam(value = "foto", required = false) MultipartFile foto
+    ) throws IOException {
+
+        Servicio servicio = servicioRepository.findById(id).orElse(null);
+        if (servicio == null) {
+            return "redirect:/gestionservicios";
+        }
+
+        servicio.setNombre(nombre);
+        servicio.setDescripcion(descripcion);
+        servicio.setPrecio(precio);
+
+        // Si se sube una nueva imagen, reemplazar
+        if (foto != null && !foto.isEmpty()) {
+            // Borrar la anterior
+            if (servicio.getFoto() != null && servicio.getFoto().startsWith("/images/")) {
+                Path rutaAnterior = uploadDir.resolve(servicio.getFoto().substring(8));
+                Files.deleteIfExists(rutaAnterior);
+            }
+
+            // Guardar la nueva
+            String nuevoNombre = System.currentTimeMillis() + "_" + foto.getOriginalFilename();
+            Path rutaNueva = uploadDir.resolve(nuevoNombre);
+            Files.copy(foto.getInputStream(), rutaNueva, StandardCopyOption.REPLACE_EXISTING);
+            servicio.setFoto("/images/" + nuevoNombre);
+        }
+
+        servicioRepository.save(servicio);
+        return "redirect:/gestionservicios";
+    }
 }

@@ -1,15 +1,28 @@
 package pe.edu.uni.demospring.model;
 
-// Esta clase NO necesita @Entity, ya que solo se usa en la sesión (carrito)
-public class Servicio {
-    private Long id;
-    private String nombre;
-    private String descripcion;
-    private double precio;
-    private String foto; // ✅ NUEVO campo para la imagen o ruta
+import jakarta.persistence.*;
 
-    public Servicio() {
-    }
+@Entity
+@Table(name = "servicio") // 👈 Nombre exacto de la tabla en tu BD Supabase
+public class Servicio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String nombre;
+
+    @Column(length = 500)
+    private String descripcion;
+
+    @Column(nullable = false)
+    private double precio;
+
+    private String foto; // Ruta o nombre de la imagen
+
+    // ✅ Constructores
+    public Servicio() {}
 
     public Servicio(Long id, String nombre, String descripcion, double precio) {
         this.id = id;
@@ -18,7 +31,6 @@ public class Servicio {
         this.precio = precio;
     }
 
-    // ✅ Nuevo constructor con foto
     public Servicio(Long id, String nombre, String descripcion, double precio, String foto) {
         this.id = id;
         this.nombre = nombre;
