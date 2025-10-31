@@ -14,9 +14,11 @@
     <div class="d-flex justify-content-between mb-3">
         <form class="d-flex" th:action="@{/admin/gestionequipos}" method="get">
             <input type="text" class="form-control me-2" name="buscar" th:value="${buscar}" placeholder="Buscar equipo...">
-            <button class="btn btn-primary">Buscar</button>
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
-        <a href="/admin/gestionequipos/nuevo" class="btn btn-success">
+
+        <!-- ✅ Botón corregido -->
+        <a th:href="@{/admin/gestionequipos/nuevo}" class="btn btn-success">
             <i class="fas fa-plus"></i> Nuevo Equipo
         </a>
     </div>
@@ -56,7 +58,7 @@
         </tbody>
     </table>
 
-    <a href="/admin/dashboard" class="btn btn-secondary mt-3">
+    <a href="/admin" class="btn btn-secondary mt-3">
         <i class="fas fa-arrow-left"></i> Volver al Panel
     </a>
 </div>
@@ -64,3 +66,4 @@
 <script src="https://kit.fontawesome.com/a2d04b1a05.js" crossorigin="anonymous"></script>
 </body>
 </html>
+

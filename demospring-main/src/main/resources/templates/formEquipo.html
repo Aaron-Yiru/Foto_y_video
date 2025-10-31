@@ -2,74 +2,55 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Registrar/Editar Equipo</title>
+    <title>Formulario de Equipo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 <div class="container py-4">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">
-                <i class="fas fa-tools"></i>
-                <span th:text="${equipo.id != null ? 'Editar Equipo' : 'Registrar Nuevo Equipo'}"></span>
-            </h4>
+    <h2 class="mb-4 text-center text-primary" th:text="${equipo.id == null} ? 'Nuevo Equipo' : 'Editar Equipo'"></h2>
+
+    <form th:action="@{/admin/gestionequipos/guardar}" th:object="${equipo}" method="post" class="card p-4 shadow-sm">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" th:field="*{nombre}" class="form-control" required>
         </div>
-        <div class="card-body">
-            <form th:action="@{/admin/gestionequipos/guardar}" th:object="${equipo}" method="post">
 
-                <input type="hidden" th:field="*{id}">
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" th:field="*{nombre}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Categoría</label>
-                        <input type="text" th:field="*{categoria}" class="form-control" required>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Marca</label>
-                        <input type="text" th:field="*{marca}" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Modelo</label>
-                        <input type="text" th:field="*{modelo}" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Cantidad</label>
-                        <input type="number" th:field="*{cantidad}" min="0" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Estado</label>
-                        <select th:field="*{estado}" class="form-select">
-                            <option value="Disponible">Disponible</option>
-                            <option value="Asignado">Asignado</option>
-                            <option value="En reparación">En reparación</option>
-                            <option value="Dañado">Dañado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                    <a href="/admin/gestionequipos" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                </div>
-            </form>
+        <div class="mb-3">
+            <label class="form-label">Categoría</label>
+            <input type="text" th:field="*{categoria}" class="form-control" required>
         </div>
-    </div>
+
+        <div class="mb-3">
+            <label class="form-label">Marca</label>
+            <input type="text" th:field="*{marca}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Modelo</label>
+            <input type="text" th:field="*{modelo}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cantidad</label>
+            <input type="number" th:field="*{cantidad}" class="form-control" min="1" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select th:field="*{estado}" class="form-select">
+                <option value="Disponible">Disponible</option>
+                <option value="Asignado">Asignado</option>
+                <option value="En reparación">En reparación</option>
+            </select>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/admin/gestionequipos}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
 </div>
-
-<script src="https://kit.fontawesome.com/a2d04b1a05.js" crossorigin="anonymous"></script>
 </body>
 </html>

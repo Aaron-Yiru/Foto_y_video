@@ -15,7 +15,11 @@ public class Equipo {
     private String marca;
     private String modelo;
     private int cantidad;
-    private String estado; // Ej: Disponible, En reparación, Asignado
+    private String estado;
+
+    @ManyToOne
+    @JoinColumn(name = "empleado_id")
+    private Empleado empleado; // Relación con empleado
 
     public Equipo() {}
 
@@ -49,4 +53,7 @@ public class Equipo {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public Empleado getEmpleado() { return empleado; }
+    public void setEmpleado(Empleado empleado) { this.empleado = empleado; }
 }

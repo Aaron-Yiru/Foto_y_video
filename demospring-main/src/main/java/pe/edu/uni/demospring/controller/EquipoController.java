@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.uni.demospring.model.Equipo;
 import pe.edu.uni.demospring.service.EquipoService;
-
 import java.util.List;
 
 @Controller
@@ -18,18 +17,22 @@ public class EquipoController {
 
     @GetMapping
     public String listarEquipos(@RequestParam(value = "buscar", required = false) String buscar, Model model) {
-        List<Equipo> equipos = (buscar != null && !buscar.isEmpty())
-                ? equipoService.buscar(buscar)
-                : equipoService.listarTodos();
+        List<Equipo> equipos;
+        if (buscar != null && !buscar.isEmpty()) {
+            equipos = equipoService.buscarPorNombreOMarca(buscar);
+        } else {
+            equipos = equipoService.listarTodos();
+        }
         model.addAttribute("equipos", equipos);
         model.addAttribute("buscar", buscar);
         return "gestionEquipos";
     }
 
+
     @GetMapping("/nuevo")
     public String mostrarFormulario(Model model) {
         model.addAttribute("equipo", new Equipo());
-        return "formEquipo";
+        return "formEquipo"; // <- Nombre del archivo HTML del formulario
     }
 
     @PostMapping("/guardar")

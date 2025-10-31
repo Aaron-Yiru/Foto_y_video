@@ -6,7 +6,6 @@ import pe.edu.uni.demospring.model.Equipo;
 import pe.edu.uni.demospring.repository.EquipoRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EquipoService {
@@ -23,15 +22,16 @@ public class EquipoService {
     }
 
     public Equipo obtenerPorId(Long id) {
-        Optional<Equipo> optional = equipoRepository.findById(id);
-        return optional.orElse(null);
+        return equipoRepository.findById(id).orElse(null);
     }
 
     public void eliminar(Long id) {
         equipoRepository.deleteById(id);
     }
 
-    public List<Equipo> buscar(String texto) {
-        return equipoRepository.findByNombreContainingIgnoreCaseOrCategoriaContainingIgnoreCase(texto, texto);
+    // 🔍 NUEVO método de búsqueda
+    public List<Equipo> buscarPorNombreOMarca(String texto) {
+        return equipoRepository.findByNombreContainingIgnoreCaseOrMarcaContainingIgnoreCase(texto, texto);
     }
 }
+

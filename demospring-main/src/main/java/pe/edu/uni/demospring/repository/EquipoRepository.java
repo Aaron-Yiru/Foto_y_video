@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface EquipoRepository extends JpaRepository<Equipo, Long> {
-    List<Equipo> findByNombreContainingIgnoreCaseOrCategoriaContainingIgnoreCase(String nombre, String categoria);
+    List<Equipo> findByNombreContainingIgnoreCaseOrMarcaContainingIgnoreCase(String nombre, String marca);
 }
