@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Equipos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <h2 class="mb-4 text-center text-primary">
+        <i class="fas fa-toolbox"></i> Gestión de Equipos
+    </h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <form class="d-flex" th:action="@{/admin/gestionequipos}" method="get">
+            <input type="text" class="form-control me-2" name="buscar" th:value="${buscar}" placeholder="Buscar equipo...">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+
+        <!-- ✅ Botón corregido -->
+        <a th:href="@{/admin/gestionequipos/nuevo}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nuevo Equipo
+        </a>
+    </div>
+
+    <table class="table table-striped table-hover shadow-sm bg-white">
+        <thead class="table-dark text-center">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Cantidad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="equipo : ${equipos}">
+            <td th:text="${equipo.id}"></td>
+            <td th:text="${equipo.nombre}"></td>
+            <td th:text="${equipo.categoria}"></td>
+            <td th:text="${equipo.marca}"></td>
+            <td th:text="${equipo.modelo}"></td>
+            <td th:text="${equipo.cantidad}"></td>
+            <td th:text="${equipo.estado}"></td>
+            <td class="text-center">
+                <a th:href="@{/admin/gestionequipos/editar/{id}(id=${equipo.id})}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a th:href="@{/admin/gestionequipos/eliminar/{id}(id=${equipo.id})}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('¿Estás seguro de eliminar este equipo?');">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="/admin" class="btn btn-secondary mt-3">
+        <i class="fas fa-arrow-left"></i> Volver al Panel
+    </a>
+</div>
+
+<script src="https://kit.fontawesome.com/a2d04b1a05.js" crossorigin="anonymous"></script>
+</body>
+</html>
+
