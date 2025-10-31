@@ -27,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     }
 
-    @Override
+    /*@Override
     public void addInterceptors(InterceptorRegistry registry) {
         // Registrar el SessionInterceptor
         registry.addInterceptor(new SessionInterceptor())
@@ -42,5 +42,5 @@ public class WebConfig implements WebMvcConfigurer {
                         "/favicon.ico",
                         "/uploads/**"
                 );
-    }
+    }*/
 }

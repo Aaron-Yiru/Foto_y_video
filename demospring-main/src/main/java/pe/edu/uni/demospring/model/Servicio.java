@@ -1,30 +1,35 @@
 package pe.edu.uni.demospring.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table; // Importaciones de JPA
+import jakarta.persistence.*;
 
-// ⭐ AÑADIR ESTAS ANOTACIONES
 @Entity
-@Table(name = "servicio")
+@Table(name = "servicio") // 👈 Nombre exacto de la tabla en tu BD Supabase
 public class Servicio {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nombre;
+
+    @Column(length = 500)
     private String descripcion;
+
+    @Column(nullable = false)
     private double precio;
-    private String foto;
 
-    // Constructor vacío (necesario para JPA)
-    public Servicio() {
+    private String foto; // Ruta o nombre de la imagen
+
+    // ✅ Constructores
+    public Servicio() {}
+
+    public Servicio(Long id, String nombre, String descripcion, double precio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precio = precio;
     }
-
-    // ⭐ Es mejor simplificar los constructores y dejar solo el vacío,
-    // y usar setters si estás trabajando con JPA/Servicios
 
     public Servicio(Long id, String nombre, String descripcion, double precio, String foto) {
         this.id = id;
@@ -33,15 +38,8 @@ public class Servicio {
         this.precio = precio;
         this.foto = foto;
     }
-    public Servicio(String nombre, String descripcion, double precio, String foto) {
-        // El ID se gestionará automáticamente por la base de datos
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.precio = precio;
-        this.foto = foto;
-    }
 
-    // Getters y Setters (sin cambios en la lógica)
+    // ✅ Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
