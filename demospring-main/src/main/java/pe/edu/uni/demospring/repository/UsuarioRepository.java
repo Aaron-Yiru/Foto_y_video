@@ -11,19 +11,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /**
      * Busca un usuario por su correo electrónico.
-     * Es clave para el proceso de inicio de sesión.
+     * Spring Security usará esto para cargar los datos y luego comparará
+     * la contraseña internamente usando BCrypt.
      */
     Optional<Usuario> findByEmail(String email);
 
-    /**
-     * Verifica si existe un usuario con un correo electrónico dado,
-     * ignorando mayúsculas y minúsculas. Es clave para el registro.
-     */
     boolean existsByEmailIgnoreCase(String email);
-
-
-
-    Usuario findByEmailAndPassword(String email, String password);
 
     long countByActivoTrue();
 

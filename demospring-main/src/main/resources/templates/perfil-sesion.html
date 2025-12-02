@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${nombreUsuario != null ? 'Mi Sesión' : 'Perfil - Foto y Video Profesional'}">
-        Perfil / Sesión - Foto y Video Profesional
-    </title>
+    <title sec:authorize="isAuthenticated()">Mi Sesión</title>
+    <title sec:authorize="!isAuthenticated()">Perfil - Foto y Video Profesional</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,10 +28,9 @@
                 <li class="nav-item"><a class="nav-link" href="/contacto">Contáctanos</a></li>
 
                 <li class="nav-item">
-                    <a class="nav-link active btn btn-outline-light rounded-pill ms-lg-3 px-4"
-                       th:href="${nombreUsuario != null ? '/perfil' : '/perfil'}">
-                        <span th:if="${nombreUsuario != null}">Mi Sesión</span>
-                        <span th:unless="${nombreUsuario != null}">Perfil</span>
+                    <a class="nav-link active btn btn-outline-light rounded-pill ms-lg-3 px-4" href="/perfil">
+                        <span sec:authorize="isAuthenticated()">Mi Sesión</span>
+                        <span sec:authorize="!isAuthenticated()">Perfil</span>
                     </a>
                 </li>
             </ul>
@@ -38,20 +38,17 @@
     </div>
 </nav>
 
-<div th:unless="${nombreUsuario != null}">
+<div sec:authorize="!isAuthenticated()">
     <header class="hero-video">
         <video autoplay muted loop playsinline>
             <source src="/videos/camara.mp4" type="video/mp4">
         </video>
         <div class="overlay">
-            <h1>
-                <span th:text="#{header.profile.title}">MI PERFIL</span>
-            </h1>
-            <p th:text="#{header.profile.subtitle}">Accede a tu cuenta o crea una nueva</p>
+            <h1><span>MI PERFIL</span></h1>
+            <p>Accede a tu cuenta o crea una nueva</p>
         </div>
     </header>
 </div>
-
 
 <main class="container my-5">
 
@@ -59,27 +56,30 @@
         <i class="fas fa-check-circle"></i> <span th:text="${mensaje}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> Credenciales incorrectas o error en el proceso.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-
-    <div th:unless="${nombreUsuario != null}" class="row g-4 justify-content-center">
+    <div sec:authorize="!isAuthenticated()" class="row g-4 justify-content-center">
         <div class="col-md-10 col-lg-8">
-            <div class="login-card">
+            <div class="login-card bg-white p-4 shadow rounded">
                 <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-content" type="button" role="tab">Iniciar Sesión</button>
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-content" type="button">Iniciar Sesión</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-content" type="button" role="tab">Registrarse</button>
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-content" type="button">Registrarse</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="login-content" role="tabpanel">
                         <h4 class="text-center mb-4">Acceso de Usuario</h4>
-                        <form th:action="@{/perfil/login}" method="post">
+                        <form th:action="@{/login-check}" method="post">
                             <div class="mb-3">
                                 <label for="loginEmail" class="form-label">Correo Electrónico</label>
                                 <input type="email" class="form-control" id="loginEmail" name="email" required>
@@ -119,46 +119,47 @@
                         </form>
                     </div>
                 </div>
-
-                <hr class="my-4">
-
-                <div class="text-center">
-                    <p class="text-muted">¿Eres administrador?</p>
-                    <a href="/admin" class="btn btn-outline-dark">Acceso de Administrador</a>
-                </div>
             </div>
         </div>
     </div>
 
 
-    <div th:if="${nombreUsuario != null}" class="py-5">
+    <div sec:authorize="isAuthenticated()" class="py-5">
+
         <div class="card shadow-sm mb-4">
-            <div class="card-body d-flex align-items-center">
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                     style="width: 80px; height: 80px; font-size: 2rem;">
-                    <i class="fas fa-user"></i>
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ms-4">
+                        <h3 class="mb-1">¡Hola, <span sec:authentication="principal.nombreCompleto">Usuario</span>!</h3>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-envelope"></i> <span sec:authentication="name">correo@ejemplo.com</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="ms-4">
-                    <h3 class="mb-1">¡Hola, <span th:text="${nombreUsuario}">Usuario</span>!</h3>
-                    <p class="text-muted mb-0">
-                        <i class="fas fa-envelope"></i> <span th:text="${emailUsuario}">correo@ejemplo.com</span>
-                    </p>
+
+                <div sec:authorize="hasRole('ADMIN')">
+                    <a href="/admin" class="btn btn-dark btn-lg">
+                        <i class="fas fa-user-shield"></i> Ir al Panel Admin
+                    </a>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
-
             <div class="col-lg-8">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm h-100 mb-4">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Mi Carrito de Servicios</h4>
                     </div>
                     <div class="card-body">
-                        <div th:if="${#lists.isEmpty(servicios)}" class="text-center py-5">
-                            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                            <h5 class="text-muted">No tienes servicios añadidos al carrito</h5>
-                            <a href="/servicios" class="btn btn-primary mt-3">
+                        <div th:if="${#lists.isEmpty(servicios)}" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No tienes servicios en el carrito</h5>
+                            <a href="/servicios" class="btn btn-primary mt-2">
                                 <i class="fas fa-plus"></i> Añadir Servicios
                             </a>
                         </div>
@@ -169,7 +170,6 @@
                                     <thead class="table-light">
                                     <tr>
                                         <th>Servicio</th>
-                                        <th>Descripción</th>
                                         <th class="text-end">Precio</th>
                                         <th class="text-center">Acción</th>
                                     </tr>
@@ -177,16 +177,15 @@
                                     <tbody>
                                     <tr th:each="servicio, iterStat : ${servicios}">
                                         <td><strong th:text="${servicio.nombre}">Servicio</strong></td>
-                                        <td th:text="${servicio.descripcion}" class="text-muted"></td>
-                                        <td class="text-end text-primary fw-bold">
+                                        <td class="text-end fw-bold">
                                             S/ <span th:text="${#numbers.formatDecimal(servicio.precio, 0, 'COMMA', 2, 'POINT')}">0.00</span>
                                         </td>
                                         <td class="text-center">
                                             <form th:action="@{/perfil/eliminar-servicio}" method="post" style="display:inline;">
                                                 <input type="hidden" name="servicioIndex" th:value="${iterStat.index}" />
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('¿Eliminar este servicio del carrito?')">
-                                                    <i class="fas fa-trash"></i> Quitar
+                                                        onclick="return confirm('¿Eliminar del carrito?')">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -197,16 +196,63 @@
 
                             <div class="border-top pt-3 mt-3">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="mb-0">Total a Pagar:</h5>
+                                    <h5 class="mb-0">Total:</h5>
                                     <h3 class="text-primary mb-0">
                                         S/ <span th:text="${totalPagar}">0.00</span>
                                     </h3>
                                 </div>
                                 <button type="button" class="btn btn-success btn-lg w-100"
                                         data-bs-toggle="modal" data-bs-target="#modalDatosContrato">
-                                    <i class="fas fa-credit-card"></i> Proceder al Pago (Contratar)
+                                    <i class="fas fa-credit-card"></i> Proceder al Pago
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-history"></i> Historial de Contrataciones</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <div th:if="${#lists.isEmpty(misContratos)}" class="text-center py-4 text-muted">
+                            <i class="fas fa-file-signature fa-3x mb-3"></i>
+                            <p>Aún no has contratado ningún servicio.</p>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(misContratos)}" class="table-responsive">
+                            <table class="table table-bordered table-striped align-middle">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Fecha Evento</th>
+                                    <th>Lugar</th>
+                                    <th>Servicios Contratados</th>
+                                    <th>Estado</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="contrato : ${misContratos}">
+                                    <td>
+                                        <i class="far fa-calendar-alt text-primary"></i>
+                                        <span th:text="${contrato.fecha}">2025-01-01</span><br>
+                                        <small class="text-muted" th:text="${contrato.hora}">00:00</small>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        <span th:text="${contrato.lugar}">Lugar</span>
+                                    </td>
+                                    <td>
+                                            <span class="badge bg-secondary text-wrap" style="width: 100%;" th:text="${contrato.servicio}">
+                                                Servicios
+                                            </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> Confirmado</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -215,55 +261,43 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="fas fa-file-download"></i> Mis Reportes</h5>
+                        <h5 class="mb-0"><i class="fas fa-file-download"></i> Descargas</h5>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">Descarga el resumen de tus servicios contratados (solo después de pagar).</p>
+                        <p class="text-muted small">Descarga el reporte de tu <strong>carrito actual</strong>.</p>
 
                         <a href="/perfil/descargar-reporte-pdf"
                            class="btn btn-danger w-100 mb-2"
                            th:classappend="${#lists.isEmpty(servicios)} ? 'disabled'">
-                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                            <i class="fas fa-file-pdf"></i> Carrito PDF
                         </a>
 
                         <a href="/perfil/descargar-reporte-excel"
                            class="btn btn-success w-100 mb-2"
                            th:classappend="${#lists.isEmpty(servicios)} ? 'disabled'">
-                            <i class="fas fa-file-excel"></i> Descargar Excel
+                            <i class="fas fa-file-excel"></i> Carrito Excel
                         </a>
-
-                        <button type="button" class="btn btn-outline-dark w-100" disabled>
-                            <i class="fas fa-file-archive"></i> Descargar Todo (ZIP)
-                        </button>
-
-                        <small class="text-muted d-block mt-3">
-                            <i class="fas fa-info-circle"></i> Los archivos se descargarán automáticamente sin salir de esta página.
-                        </small>
                     </div>
                 </div>
 
                 <div class="card shadow-sm">
                     <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Acciones</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             <a href="/servicios" class="btn btn-outline-primary">
-                                <i class="fas fa-plus-circle"></i> Agregar Más Servicios
-                            </a>
-                            <a href="/verContratos" class="btn btn-outline-success">
-                                <i class="fas fa-file-contract"></i> Ver Mis Contratos
+                                <i class="fas fa-plus-circle"></i> Agregar Servicios
                             </a>
                             <a href="/galeria" class="btn btn-outline-primary">
                                 <i class="fas fa-images"></i> Ver Galería
                             </a>
-                            <a href="/contacto" class="btn btn-outline-primary">
-                                <i class="fas fa-envelope"></i> Contáctanos
-                            </a>
                             <hr>
-                            <a href="/perfil/logout" class="btn btn-danger">
-                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                            </a>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -271,99 +305,58 @@
         </div>
     </div>
 </main>
+
 <footer class="footer py-5 mt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-                <h5 class="text-white">Contacto</h5>
-                <ul class="list-unstyled">
-                    <li><i class="fas fa-map-marker-alt"></i> Av. Parra 204, Arequipa</li>
-                    <li><i class="fas fa-phone"></i> +51 987 654 321</li>
-                    <li><i class="fas fa-envelope"></i> info@fotovideo.pe</li>
-                </ul>
-            </div>
-            <div class="col-md-4 text-center mb-3 mb-md-0">
-                <h5 class="text-white">Síguenos</h5>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-            <div class="col-md-4 text-center text-md-end">
-                <h5 class="text-white">Enlaces Rápidos</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/index" class="text-decoration-none text-white-50">Inicio</a></li>
-                    <li><a href="/servicios" class="text-decoration-none text-white-50">Servicios</a></li>
-                    <li><a href="/galeria" class="text-decoration-none text-white-50">Galería</a></li>
-                    <li><a href="/contacto" class="text-decoration-none text-white-50">Contáctanos</a></li>
-                </ul>
-            </div>
-        </div>
-        <hr class="text-white-50 my-4">
-        <div class="text-center">
-            <p class="mb-0">&copy; 2025 Foto & Video Profesional. Todos los derechos reservados.</p>
-        </div>
+    <div class="container text-center">
+        <p class="mb-0">&copy; 2025 Foto & Video Profesional.</p>
     </div>
 </footer>
 
-
-<div class="modal fade" id="modalDatosContrato" tabindex="-1" aria-labelledby="modalDatosContratoLabel" aria-hidden="true">
+<div class="modal fade" id="modalDatosContrato" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalDatosContratoLabel">
-                    <i class="fas fa-clipboard-list"></i> Completar Datos del Contrato
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-list"></i> Confirmar Contratación
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form th:action="@{/perfil/procesar-pago}" method="post">
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="telefono" class="form-label">
-                            <i class="fas fa-phone"></i> Teléfono de Contacto *
-                        </label>
-                        <input type="tel" class="form-control" id="telefono" name="telefono" required placeholder="987654321">
+                    <div class="alert alert-info py-2">
+                        <small><i class="fas fa-info-circle"></i> Al confirmar, estos servicios se guardarán en tu historial.</small>
                     </div>
                     <div class="mb-3">
-                        <label for="fechaEvento" class="form-label">
-                            <i class="fas fa-calendar"></i> Fecha del Evento *
-                        </label>
+                        <label class="form-label">Teléfono *</label>
+                        <input type="tel" class="form-control" name="telefono" required placeholder="987 654 321">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha del Evento *</label>
                         <input type="date" class="form-control" id="fechaEvento" name="fechaEvento" required>
                     </div>
                     <div class="mb-3">
-                        <label for="lugar" class="form-label">
-                            <i class="fas fa-map-marker-alt"></i> Lugar del Evento *
-                        </label>
-                        <input type="text" class="form-control" id="lugar" name="lugar"
-                               placeholder="Hotel Libertador, Arequipa" required>
+                        <label class="form-label">Lugar *</label>
+                        <input type="text" class="form-control" name="lugar" required placeholder="Ej: Hotel Libertador">
                     </div>
                     <div class="mb-3">
-                        <label for="comentarios" class="form-label">
-                            <i class="fas fa-comment"></i> Comentarios Adicionales
-                        </label>
-                        <textarea class="form-control" id="comentarios" name="comentarios" rows="3"
-                                  placeholder="Detalles especiales o requisitos..."></textarea>
+                        <label class="form-label">Comentarios</label>
+                        <textarea class="form-control" name="comentarios" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="horaEvento" class="form-label">
-                            <i class="fas fa-clock"></i> Hora del Evento
-                        </label>
-                        <input type="time" class="form-control" id="horaEvento" name="horaEvento">
+                        <label class="form-label">Hora</label>
+                        <input type="time" class="form-control" name="horaEvento">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check"></i> Confirmar y Contratar
+                        <i class="fas fa-check"></i> Confirmar y Guardar
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -374,15 +367,6 @@
             fechaInput.setAttribute('min', today);
         }
     });
-    function descargarArchivo(url) {
-        const enlace = document.createElement('a');
-        enlace.href = url;
-        enlace.style.display = 'none';
-        enlace.setAttribute('download', '');
-        document.body.appendChild(enlace);
-        enlace.click();
-        document.body.removeChild(enlace);
-    }
 </script>
 </body>
 </html>

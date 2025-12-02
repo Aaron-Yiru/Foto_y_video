@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,322 +27,211 @@
 </head>
 <body class="bg-light">
 
-<!-- 🔹 Formulario de Login (cuando NO está logueado) -->
-<div th:if="${session.adminLogueado == null}"
-     class="d-flex align-items-center justify-content-center vh-100 bg-gradient">
-    <div class="card p-4 shadow-lg rounded" style="max-width: 450px; width: 100%;">
-        <!-- Logo o Ícono -->
-        <div class="text-center mb-4">
-            <i class="fas fa-user-shield fa-4x text-primary"></i>
-        </div>
-
-        <!-- Título -->
-        <h4 class="text-center mb-4 fw-bold text-primary">
-            Acceso de Administrador
-        </h4>
-
-        <!-- Mensaje de error -->
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${error}">Error de autenticación</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-
-        <!-- Formulario -->
-        <form th:action="@{/admin/login}" method="post">
-            <div class="mb-3">
-                <label for="email" class="form-label">
-                    <i class="fas fa-envelope"></i> Correo Electrónico
-                </label>
-                <input type="email" class="form-control" id="email" name="email"
-                       placeholder="admin@fotovideo.pe" required autofocus>
-            </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">
-                    <i class="fas fa-lock"></i> Contraseña
-                </label>
-                <input type="password" class="form-control" id="password" name="password"
-                       placeholder="••••••••" required>
-            </div>
-
-            <!-- Botones -->
-            <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                </button>
-                <a href="/index" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left"></i> Volver al Inicio
-                </a>
-            </div>
-        </form>
-
-        <!-- Footer -->
-        <hr class="my-4">
-        <p class="text-center text-muted small mb-0">
-            <i class="fas fa-shield-alt"></i> Área restringida - Solo administradores
-        </p>
-        <p class="text-center text-muted small">
-            Foto & Video Profesional © 2025
-        </p>
-    </div>
-</div>
-
-<!-- 🔹 Dashboard de Administrador (cuando SÍ está logueado) -->
-<div th:if="${session.adminLogueado != null}">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container-fluid">
+<nav class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
             <span class="navbar-brand">
                 <i class="fas fa-user-shield"></i> Panel de Administrador
             </span>
-            <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
                 <span class="text-white me-3">
                     <i class="fas fa-user-circle"></i>
-                    <span th:text="${session.adminEmail}">admin@fotovideo.pe</span>
+                    <span sec:authentication="name">admin@fotovideo.pe</span>
                 </span>
-                <a href="/admin/logout" class="btn btn-outline-light btn-sm">
+
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-light btn-sm">
                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
-            </div>
+                </button>
+            </form>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Contenido Principal -->
-    <div class="container my-5">
+<div class="container my-5">
 
-        <!-- Encabezado -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2 class="mb-2">
-                    <i class="fas fa-tachometer-alt text-primary"></i>
-                    Bienvenido al Panel de Control
-                </h2>
-                <p class="text-muted">Gestiona todos los aspectos de tu sistema</p>
-            </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-2">
+                <i class="fas fa-tachometer-alt text-primary"></i>
+                Bienvenido al Panel de Control
+            </h2>
+            <p class="text-muted">
+                Hola <strong sec:authentication="principal.nombreCompleto">Administrador</strong>, gestiona todos los aspectos de tu sistema.
+            </p>
         </div>
+    </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card stats-card border-warning shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1">Contratos Pendientes</h6>
-                                <h3 class="mb-0">--</h3>
-                            </div>
-                            <i class="fas fa-clock fa-2x text-warning"></i>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card border-warning shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Contratos Pendientes</h6>
+                            <h3 class="mb-0">--</h3>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card stats-card border-success shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1">Aprobados</h6>
-                                <h3 class="mb-0">--</h3>
-                            </div>
-                            <i class="fas fa-check-circle fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card stats-card border-danger shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1">Rechazados</h6>
-                                <h3 class="mb-0">--</h3>
-                            </div>
-                            <i class="fas fa-times-circle fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card stats-card border-info shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1">Total Usuarios</h6>
-                                <h3 class="mb-0"><span th:text="${totalUsuarios}"></span></h3>
-                            </div>
-                            <i class="fas fa-users fa-2x text-info"></i>
-                        </div>
+                        <i class="fas fa-clock fa-2x text-warning"></i>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Módulos del Sistema -->
-        <h4 class="mb-3"><i class="fas fa-th-large"></i> Módulos del Sistema</h4>
-        <div class="row g-4">
-
-            <!-- Gestión de Contratos -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-file-contract card-icon text-primary"></i>
-                        <h5 class="card-title">Gestión de Contratos</h5>
-                        <p class="card-text text-muted">
-                            Revisa, aprueba o rechaza las solicitudes de servicios
-                        </p>
-                        <a href="/verContratos" class="btn btn-primary w-100">
-                            <i class="fas fa-eye me-2"></i>Ver Contratos
-                        </a>
+        <div class="col-md-3">
+            <div class="card stats-card border-success shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Aprobados</h6>
+                            <h3 class="mb-0">--</h3>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
                 </div>
             </div>
-
-            <!-- Gestión de Usuarios -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-users card-icon text-success"></i>
-                        <h5 class="card-title">Gestión de Usuarios</h5>
-                        <p class="card-text text-muted">
-                            Administra todos los usuarios registrados en el sistema
-                        </p>
-                        <a href="/gestionusuarios" class="btn btn-outline-success">
-                            <i class="fas fa-users me-2"></i> Ver Usuarios
-                        </a>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card border-danger shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Rechazados</h6>
+                            <h3 class="mb-0">--</h3>
+                        </div>
+                        <i class="fas fa-times-circle fa-2x text-danger"></i>
                     </div>
                 </div>
             </div>
-            <!-- Gestión de Empleados -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-id-badge card-icon text-warning"></i>
-                        <h5 class="card-title">Gestión de Empleados</h5>
-                        <p class="card-text text-muted">
-                            Administra los datos del personal registrado en el sistema.
-                        </p>
-                        <a href="/admin/gestionempleados" class="btn btn-warning w-100">
-                            <i class="fas fa-users-cog me-2"></i> Ir a Empleados
-                        </a>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card border-info shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Usuarios</h6>
+                            <h3 class="mb-0" th:text="${totalUsuarios != null ? totalUsuarios : '--'}">--</h3>
+                        </div>
+                        <i class="fas fa-users fa-2x text-info"></i>
                     </div>
                 </div>
             </div>
-            <!-- Gestión de Equipos -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-people-group card-icon text-primary"></i>
-                        <h5 class="card-title">Gestión de Equipos</h5>
-                        <p class="card-text text-muted">
-                            Administra los equipos conformados por empleados para distintos servicios.
-                        </p>
-                        <a href="/admin/gestionequipos" class="btn btn-primary w-100">
-                            <i class="fas fa-people-carry me-2"></i> Ir a Equipos
-                        </a>
-                    </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3"><i class="fas fa-th-large"></i> Módulos del Sistema</h4>
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-contract card-icon text-primary"></i>
+                    <h5 class="card-title">Gestión de Contratos</h5>
+                    <p class="card-text text-muted">
+                        Revisa, aprueba o rechaza las solicitudes de servicios
+                    </p>
+                    <a href="/verContratos" class="btn btn-primary w-100">
+                        <i class="fas fa-eye me-2"></i>Ver Contratos
+                    </a>
                 </div>
             </div>
-
-
-            <!-- Reportes -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-chart-bar card-icon text-info"></i>
-                        <h5 class="card-title">Reportes y Estadísticas</h5>
-                        <p class="card-text text-muted">
-                            Genera reportes detallados del sistema
-                        </p>
-                        <button class="btn btn-info w-100" disabled>
-                            <i class="fas fa-file-download me-2"></i>Próximamente
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Configuración -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-cog card-icon text-secondary"></i>
-                        <h5 class="card-title">Configuración</h5>
-                        <p class="card-text text-muted">
-                            Ajustes generales y parámetros del sistema
-                        </p>
-                        <button class="btn btn-secondary w-100" disabled>
-                            <i class="fas fa-tools me-2"></i>Próximamente
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4 mb-3">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Gestión de Servicios</h5>
-                        <p class="card-text">Administra los servicios disponibles.</p>
-                        <a href="/admin/gestionservicios" class="btn btn-primary">Ir a Gestión</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Galería -->
-            <div class="col-md-4">
-                <div class="card dashboard-card shadow h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-images card-icon text-danger"></i>
-                        <h5 class="card-title">Gestión de Galería</h5>
-                        <p class="card-text text-muted">
-                            Administra las imágenes y videos de la galería
-                        </p>
-                        <a href="/galeria" class="btn btn-danger w-100">
-                            <i class="fas fa-images me-2"></i>Ver Galería
-                        </a>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Acceso Rápido -->
-        <div class="card mt-5 shadow">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0"><i class="fas fa-bolt"></i> Acceso Rápido</h5>
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users card-icon text-success"></i>
+                    <h5 class="card-title">Gestión de Usuarios</h5>
+                    <p class="card-text text-muted">
+                        Administra todos los usuarios registrados en el sistema
+                    </p>
+                    <a href="/gestionusuarios" class="btn btn-outline-success w-100">
+                        <i class="fas fa-users me-2"></i> Ver Usuarios
+                    </a>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Enlaces Útiles:</h6>
-                        <ul class="list-unstyled">
-                            <li><a href="/verContratos" class="text-decoration-none">
-                                <i class="fas fa-arrow-right text-primary"></i> Ver todos los contratos
-                            </a></li>
-                            <li><a href="/servicios" class="text-decoration-none">
-                                <i class="fas fa-arrow-right text-primary"></i> Ver servicios públicos
-                            </a></li>
-                            <li><a href="/galeria" class="text-decoration-none">
-                                <i class="fas fa-arrow-right text-primary"></i> Ver galería pública
-                            </a></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Acciones:</h6>
-                        <div class="d-grid gap-2">
-                            <a href="/verContratos" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i> Revisar Contratos Pendientes
-                            </a>
-                            <a href="/index" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-home"></i> Ir al Sitio Público
-                            </a>
-                        </div>
-                    </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-id-badge card-icon text-warning"></i>
+                    <h5 class="card-title">Gestión de Empleados</h5>
+                    <p class="card-text text-muted">
+                        Administra los datos del personal registrado en el sistema.
+                    </p>
+                    <a href="/admin/gestionempleados" class="btn btn-warning w-100">
+                        <i class="fas fa-users-cog me-2"></i> Ir a Empleados
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-people-group card-icon text-primary"></i>
+                    <h5 class="card-title">Gestión de Equipos</h5>
+                    <p class="card-text text-muted">
+                        Administra los equipos conformados por empleados para distintos servicios.
+                    </p>
+                    <a href="/admin/gestionequipos" class="btn btn-primary w-100">
+                        <i class="fas fa-people-carry me-2"></i> Ir a Equipos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-concierge-bell card-icon" style="color: #6f42c1;"></i>
+                    <h5 class="card-title">Gestión de Servicios</h5>
+                    <p class="card-text text-muted">
+                        Administra el catálogo de servicios (precios, fotos, descripción).
+                    </p>
+                    <a href="/admin/gestionservicios" class="btn btn-outline-primary w-100" style="border-color: #6f42c1; color: #6f42c1;">
+                        <i class="fas fa-list me-2"></i> Ir a Servicios
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-images card-icon text-danger"></i>
+                    <h5 class="card-title">Gestión de Galería</h5>
+                    <p class="card-text text-muted">
+                        Ver cómo luce la galería pública.
+                    </p>
+                    <a href="/galeria" class="btn btn-danger w-100">
+                        <i class="fas fa-images me-2"></i>Ver Galería
+                    </a>
                 </div>
             </div>
         </div>
 
     </div>
+
+    <div class="card mt-5 shadow">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-bolt"></i> Acceso Rápido</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Enlaces Útiles:</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/perfil" class="text-decoration-none">
+                            <i class="fas fa-arrow-right text-primary"></i> Ir a mi Perfil de Usuario
+                        </a></li>
+                        <li><a href="/index" class="text-decoration-none">
+                            <i class="fas fa-arrow-right text-primary"></i> Ir al Sitio Público
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

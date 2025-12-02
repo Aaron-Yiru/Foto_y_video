@@ -1,6 +1,5 @@
 package pe.edu.uni.demospring.controller;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +16,8 @@ import java.nio.file.*;
 public class GestionServiciosController {
 
     private final ServicioService servicioService;
+
+    // Ruta donde se guardarán las imágenes
     private final Path uploadDir = Paths.get("uploads/images");
 
     @Autowired
@@ -24,22 +25,16 @@ public class GestionServiciosController {
         this.servicioService = servicioService;
     }
 
-    // =================== Mostrar página ===================
+    // =================== Mostrar página (Protegido por Spring Security) ===================
     @GetMapping
-    public String mostrarGestionServicios(
-            HttpSession session,
-            Model model,
-            @RequestParam(value = "keyword", required = false) String keyword
-    ) {
-        // Verifica sesión del admin
-        if (session.getAttribute("adminLogueado") == null) {
-            return "redirect:/admin";
-        }
+    public String mostrarGestionServicios(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
 
-        // Búsqueda opcional
+        // No hace falta verificar sesión manualmente, WebSecurityConfig protege "/admin/**"
+
         if (keyword != null && !keyword.isEmpty()) {
-            // Si quieres implementar búsqueda, añade un método en tu repositorio:
-            // findByNombreContainingIgnoreCaseOrDescripcionContainingIgnoreCase
+            // Nota: Asegúrate de tener este método en tu Service/Repo si vas a usar el buscador
+            // model.addAttribute("servicios", servicioService.buscar(keyword));
+            // Por ahora usamos listar() genérico si no tienes el buscador específico implementado
             model.addAttribute("servicios", servicioService.listar());
             model.addAttribute("keyword", keyword);
         } else {
@@ -67,6 +62,7 @@ public class GestionServiciosController {
         // Guardar imagen
         String nombreArchivo = "servicio-generico.jpg";
         if (!foto.isEmpty()) {
+            // Usamos timestamp para evitar nombres duplicados
             nombreArchivo = System.currentTimeMillis() + "_" + foto.getOriginalFilename();
             Path rutaArchivo = uploadDir.resolve(nombreArchivo);
             Files.copy(foto.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
@@ -77,7 +73,7 @@ public class GestionServiciosController {
         servicio.setNombre(nombre);
         servicio.setDescripcion(descripcion);
         servicio.setPrecio(precio);
-        servicio.setFoto("/images/" + nombreArchivo);
+        servicio.setFoto("/images/" + nombreArchivo); // Ruta relativa para el HTML
 
         servicioService.guardar(servicio);
         return "redirect:/admin/gestionservicios";
@@ -87,26 +83,21 @@ public class GestionServiciosController {
     @PostMapping("/eliminar")
     public String eliminarServicio(@RequestParam Long id) throws IOException {
         Servicio servicio = servicioService.buscarPorId(id);
+
         if (servicio != null) {
-            // Eliminar imagen del disco (si existe)
-            if (servicio.getFoto() != null && servicio.getFoto().startsWith("/images/")) {
-                Path rutaFoto = uploadDir.resolve(servicio.getFoto().substring(8));
-                Files.deleteIfExists(rutaFoto);
+            // Eliminar imagen del disco si no es la genérica
+            if (servicio.getFoto() != null && servicio.getFoto().startsWith("/images/") && !servicio.getFoto().contains("servicio-generico")) {
+                try {
+                    String nombreArchivo = servicio.getFoto().substring(8); // Quita "/images/"
+                    Path rutaFoto = uploadDir.resolve(nombreArchivo);
+                    Files.deleteIfExists(rutaFoto);
+                } catch (Exception e) {
+                    System.err.println("No se pudo borrar la imagen: " + e.getMessage());
+                }
             }
             servicioService.eliminar(id);
         }
         return "redirect:/admin/gestionservicios";
-    }
-
-    // =================== Mostrar formulario de edición ===================
-    @GetMapping("/editar/{id}")
-    public String mostrarFormularioEdicion(@PathVariable Long id, Model model) {
-        Servicio servicio = servicioService.buscarPorId(id);
-        if (servicio == null) {
-            return "redirect:/admin/gestionservicios";
-        }
-        model.addAttribute("servicio", servicio);
-        return "editarservicio"; // Página separada para edición
     }
 
     // =================== Procesar edición ===================
@@ -128,13 +119,20 @@ public class GestionServiciosController {
         servicio.setDescripcion(descripcion);
         servicio.setPrecio(precio);
 
-        // Reemplazar imagen si se sube una nueva
+        // Reemplazar imagen solo si el usuario subió una nueva
         if (foto != null && !foto.isEmpty()) {
+            // 1. Borrar imagen anterior
             if (servicio.getFoto() != null && servicio.getFoto().startsWith("/images/")) {
-                Path rutaAnterior = uploadDir.resolve(servicio.getFoto().substring(8));
-                Files.deleteIfExists(rutaAnterior);
+                try {
+                    String nombreAnterior = servicio.getFoto().substring(8);
+                    Path rutaAnterior = uploadDir.resolve(nombreAnterior);
+                    Files.deleteIfExists(rutaAnterior);
+                } catch (Exception e) {
+                    // Ignorar error de borrado
+                }
             }
 
+            // 2. Guardar nueva imagen
             String nuevoNombre = System.currentTimeMillis() + "_" + foto.getOriginalFilename();
             Path rutaNueva = uploadDir.resolve(nuevoNombre);
             Files.copy(foto.getInputStream(), rutaNueva, StandardCopyOption.REPLACE_EXISTING);
@@ -144,7 +142,6 @@ public class GestionServiciosController {
         servicioService.guardar(servicio);
         return "redirect:/admin/gestionservicios";
     }
-
 }
 
 
