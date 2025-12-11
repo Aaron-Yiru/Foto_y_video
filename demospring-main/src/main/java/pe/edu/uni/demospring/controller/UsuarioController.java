@@ -17,15 +17,15 @@ public class UsuarioController {
 
     @GetMapping("/gestionusuarios")
     public String mostrarUsuarios(Model model) {
-        // ✅ Traer todos los usuarios desde la base de datos
+        // Traer todos los usuarios desde la base de datos
         List<Usuario> usuarios = usuarioService.obtenerTodos();
 
-        // ✅ Contar usuarios activos e inactivos directamente con métodos del repositorio
+        // Contar usuarios activos e inactivos directamente con métodos del repositorio
         long usuariosActivos = usuarioService.contarPorEstado(true);
         long usuariosInactivos = usuarioService.contarPorEstado(false);
         long totalUsuarios = usuarioService.contarUsuarios();
 
-        // ✅ Enviar los datos a la vista (Thymeleaf)
+        //  Enviar los datos a la vista (Thymeleaf)
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("usuariosActivos", usuariosActivos);
         model.addAttribute("usuariosInactivos", usuariosInactivos);

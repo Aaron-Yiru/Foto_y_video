@@ -1,4 +1,4 @@
-package pe.edu.uni.demospring.configuration;
+package pe.edu.uni.demospring.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,19 +25,19 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        // ✅ RECURSOS ESTÁTICOS (Siempre públicos)
+                        //  RECURSOS ESTÁTICOS (Siempre públicos)
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/videos/**", "/uploads/**").permitAll()
 
-                        // ✅ RUTAS PÚBLICAS (Visitantes)
+                        //  RUTAS PÚBLICAS (Visitantes)
                         .requestMatchers("/", "/index", "/servicios", "/galeria", "/contacto", "/contacto-form/**").permitAll()
 
-                        // ✅ RUTAS DE AUTENTICACIÓN
+                        //  RUTAS DE AUTENTICACIÓN
                         .requestMatchers("/perfil", "/perfil/registrar").permitAll()
 
-                        // ✅ ÁREA ADMINISTRATIVA (Solo ADMIN)
+                        //  ÁREA ADMINISTRATIVA (Solo ADMIN)
                         .requestMatchers("/admin/**", "/verContratos", "/gestionusuarios").hasRole("ADMIN")
 
-                        // ✅ ÁREA DE USUARIO LOGUEADO (Carrito, Perfil, etc.)
+                        //  ÁREA DE USUARIO LOGUEADO (Carrito, Perfil, etc.)
                         .requestMatchers("/perfil/**", "/carrito/**").authenticated()
 
                         // Cualquier otra cosa requiere login

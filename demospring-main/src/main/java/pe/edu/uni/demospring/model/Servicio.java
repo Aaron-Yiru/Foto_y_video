@@ -3,7 +3,7 @@ package pe.edu.uni.demospring.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "servicio") // 👈 Nombre exacto de la tabla en tu BD Supabase
+@Table(name = "servicio") //  Nombre exacto de la tabla en tu BD Supabase
 public class Servicio {
 
     @Id
@@ -21,7 +21,7 @@ public class Servicio {
 
     private String foto; // Ruta o nombre de la imagen
 
-    // ✅ Constructores
+    //  Constructores
     public Servicio() {}
 
     public Servicio(Long id, String nombre, String descripcion, double precio) {
@@ -39,7 +39,7 @@ public class Servicio {
         this.foto = foto;
     }
 
-    // ✅ Getters y Setters
+    //  Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

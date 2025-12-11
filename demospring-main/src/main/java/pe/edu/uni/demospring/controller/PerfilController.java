@@ -34,7 +34,7 @@ import pe.edu.uni.demospring.security.MyUserPrincipal;
 
 // Repositorios y Servicios
 import pe.edu.uni.demospring.repository.ItemCarritoRepository;
-import pe.edu.uni.demospring.repository.ContratoRepository; // ✅ Importante para el historial
+import pe.edu.uni.demospring.repository.ContratoRepository; //  Importante para el historial
 import pe.edu.uni.demospring.service.ContratoService;
 import pe.edu.uni.demospring.service.ServicioService;
 import pe.edu.uni.demospring.service.UsuarioService;
@@ -52,7 +52,7 @@ public class PerfilController {
     private final ServicioService servicioService;
     private final ContratoService contratoService;
     private final ItemCarritoRepository itemCarritoRepository;
-    private final ContratoRepository contratoRepository; // ✅ Nuevo repositorio inyectado
+    private final ContratoRepository contratoRepository; // Nuevo repositorio inyectado
 
     @Autowired
     public PerfilController(UsuarioService usuarioService,
@@ -89,7 +89,7 @@ public class PerfilController {
 
         double totalPagar = carrito.stream().mapToDouble(Servicio::getPrecio).sum();
 
-        // 2. ✅ CARGAR HISTORIAL DE CONTRATOS
+        // 2.  CARGAR HISTORIAL DE CONTRATOS
         // Esto busca los contratos usando el email del usuario y los ordena por el más reciente
         List<Contrato> misContratos = contratoRepository.findByEmailOrderByIdDesc(usuario.getEmail());
 
@@ -217,7 +217,7 @@ public class PerfilController {
         // Vaciar el carrito
         itemCarritoRepository.deleteByUsuario(usuario);
 
-        ra.addFlashAttribute("mensaje", "✅ ¡Contratación exitosa! Tu pedido ha sido registrado en el historial.");
+        ra.addFlashAttribute("mensaje", " ¡Contratación exitosa! Tu pedido ha sido registrado en el historial.");
 
         // Al redireccionar a /perfil, el método mostrarPerfilSesion volverá a ejecutarse
         // y cargará la lista actualizada de contratos en la tabla 'misContratos'.
@@ -245,7 +245,7 @@ public class PerfilController {
         document.open();
 
         Font tituloFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
-        Paragraph titulo = new Paragraph("📋 Reporte de Servicios\n\n", tituloFont);
+        Paragraph titulo = new Paragraph(" Reporte de Servicios\n\n", tituloFont);
         titulo.setAlignment(Element.ALIGN_CENTER);
         document.add(titulo);
 

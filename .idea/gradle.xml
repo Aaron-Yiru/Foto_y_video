@@ -5,11 +5,6 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/demospring-main" />
-<<<<<<< HEAD
-        <option name="gradleJvm" value="22" />
-=======
-        <option name="gradleJvm" value="21" />
->>>>>>> origin/recuperacion
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/demospring-main" />

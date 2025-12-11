@@ -25,7 +25,7 @@ public class Usuario {
     @Column(columnDefinition = "boolean default true")
     private Boolean activo = true;
 
-    // ✅ RELACIÓN CON ROLES
+    // RELACIÓN CON ROLES
     // Se crea una tabla intermedia "usuarios_roles" automáticamente
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
@@ -48,7 +48,7 @@ public class Usuario {
         this.activo = true;
     }
 
-    // ✅ Método helper para añadir roles fácilmente
+    //  Método helper para añadir roles fácilmente
     public void agregarRol(Rol rol) {
         this.roles.add(rol);
     }
